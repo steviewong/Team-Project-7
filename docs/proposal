@@ -4,3 +4,10 @@ Discussion Section: A4
 Team: 7
 Members: Sydney Jenkin, Cole Benowitz, Adriana Rincon, Stevie Wong
 
+The Movie Forecast:
+  
+  Our first proposal is a movie recommender application. We would use a movie database and the weather to recommend someone a movie. Users could put in
+optional parameters such as keywords (for mood/genre), runtime, month, and if they want to watch a bad movie or not. The application would return a list of movies with those that
+fulfill all the requirements boosted to the top. The goal would be to provide the user with a movie recommendation that matches the user's environment
+and the other qualifications they are looking for.
+
