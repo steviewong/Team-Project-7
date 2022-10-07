@@ -11,3 +11,9 @@ optional parameters such as keywords (for mood/genre), runtime, month, and if th
 fulfill all the requirements boosted to the top. The goal would be to provide the user with a movie recommendation that matches the user's environment
 and the other qualifications they are looking for.
 
+Great American Playlist:
+
+   Our second proposal generates a road trip route and a playlist for the road trip based on various locations the user wants to visit within the U.S. 
+ We would use a navigation database and a spotify database. The app generates a playlist based on the amount of time the road trip takes and the states/locations it passes through. 
+ We would satisfy the third party authentication through Spotify.
+
