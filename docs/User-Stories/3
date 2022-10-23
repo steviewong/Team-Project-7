@@ -1,1 +1,5 @@
 Searching for a movie of a specific rating, runtime, genre
+If log in succesful, the user will be taken to the main page where there will be multiple filters where the user can input a specific rating, runtime or genre. The 
+user can then type in the specific runtime, which if it is not in an accepted format will give them an error message. The genre and rating will be a dropdown which the 
+user can click on. There will be a search button to be clicked once the user has all the specified filters they want. Once it is clicked, all the searches will show up 
+and categorized. The user can then click on each one and read more about it. 
