@@ -1,1 +1,7 @@
-A user can mark movies they've already seen as watched so they don't come up in future searches. User can also put movies into a watch later folder. The user can customize the names of the folders.
+As a logged-in user, I want to create folders to organize movies. Additionally, I want to be able to mark a given movie as "Watched" so that it doesn't show up in
+future recommendations. Once I click on a specific movie's drop down menu, I can add that movie to "Watch Later", "Add to folder," or "Mark as Watched."
+If I click "Watch Later" the movie will be added to that folder, which is a default folder. If I click "Add to folder" a menu will appear showing pre-existing 
+folders (if applicable) and a button that says "Add to New Folder." If I add to a new folder, I must name the folder and the movie will be
+added to it once named. I can access all folders by clicking the "My Folders" button. Once a movie has been marked as watched, it will not show up in future recommendations.
+I can edit my folders or watched movies at any point. If I want to edit a given folder, I click on "My Folders" and click on the designated folder. Once in that folder,
+I can click on a given movie and press "Remove from Folder." 
