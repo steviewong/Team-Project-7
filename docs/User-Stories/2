@@ -1,4 +1,3 @@
-No inputs, random recommendation based on weather
-As a logged in user, I will be sent to the main page where all the options will be. Without having to click on anything, the website should automatically give a movie 
-recommendation based on the weather of the location I am in. I should then be able to have the option of clicking on a  "Watch" button or ignore it and continue on
-and be able to click on the other buttons/filters in the website. 
+As a logged-in user, I want to receive a "no effort" random movie recommendation. I will be sent to the main page where all the input options are located. 
+If I click "Recommend a Movie," without specifying any other inputs, the website should automatically give a movie recommendation based on the weather. 
+I can then filter this movie by placing it in a folder or designating it as "Watched" (see user story 4).
