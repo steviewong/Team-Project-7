@@ -1,26 +1,29 @@
 import requests
 
-url = "https://imdb8.p.rapidapi.com/auto-complete"
+def getposter(movie):	
+	url = "https://imdb8.p.rapidapi.com/auto-complete"
 
-movie = input("Enter movie:")
-print("Username is: " + movie)
+	#movie = input("Enter movie:")
+	#print("Username is: " + movie)
 #movie = "the shawshank redemption"
 
 
-x =movie.replace(' ','%20')
+	x =movie.replace(' ','%20')
 
-querystring = {"q":movie}
+	querystring = {"q":movie}
 
-headers = {
-	"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
-	"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
-}
+	headers = {
+		"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
+		"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
+	}
 
-response = requests.request("GET", url, headers=headers, params=querystring)
+	response = requests.request("GET", url, headers=headers, params=querystring)
 
-responsej = response.json()
+	responsej = response.json()
 
-print(responsej['d'][0]['i']['imageUrl'])
+	print(responsej['d'][0]['i']['imageUrl'])
+
+	return responsej['d'][0]['i']['imageUrl']
 
 
 
