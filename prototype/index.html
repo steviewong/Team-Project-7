@@ -4,15 +4,21 @@
         <Title>Team 7 Movie Generator</Title>
         <link rel="stylesheet" href="index.css">
 
+        response function here (call to backend)
     </head>
 
     <body>
         <h1>Movie Generator</h1>
         <p class="description">This application will help you to choose a movie based on the weather and any other specifications you have!</p>
+        <p class="description">Type in your favorite movie!</p>
         <div>
-            <input class="search-bar" type="text" placeholder="Type the name of a movie">
+            <form method="post" action="http://localhost:3000/submitMovieTitle">
 
-            <button onclick="response()">Show me my movie</button>
+                <input type="text" name="movieTitle"> 
+                <br/>
+                <button onclick="response()">Show me my movie</button>
+
+            </form>
         </div>
     </body>
 </html>
