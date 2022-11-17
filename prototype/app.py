@@ -8,12 +8,12 @@ import os, base64
 
 app = Flask(__name__)
 
-@app.route('/pic', methods =["GET"])
+@app.route('/pic', methods =["POST"])
 def getposter():
 
     if flask.request.method == 'GET':	
         url = "https://imdb8.p.rapidapi.com/auto-complete"
-        movie = input("Enter movie:")
+        movie = request.form['movieTitle']
         
     #movie = "the shawshank redemption"
 
