@@ -6,7 +6,11 @@ from flask import Flask, Response, request, render_template, redirect, url_for
 
 import os, base64
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.')
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 @app.route('/pic', methods =["GET"])
 def getposter():
@@ -33,6 +37,8 @@ def getposter():
 
         return responsej['d'][0]['i']['imageUrl']
 
+if __name__ == '__main__':
+    app.run()
 
 
 #movie = input("Enter movie:")
