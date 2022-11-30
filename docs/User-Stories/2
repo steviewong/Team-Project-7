@@ -1,3 +1,3 @@
 As a logged-in user, I want to receive a "no effort" random movie recommendation. I will be sent to the main page where all the input options are located. 
 If I click "Recommend a Movie," without specifying any other inputs, the website should automatically give a movie recommendation based on the weather. 
-I can then filter this movie by placing it in a folder or designating it as "Watched" (see user story 4).
+The website will display the movie poster, movie name, genre, and year. I can then filter this movie by placing it in a folder or designating it as "Watched" (see user story 4).
