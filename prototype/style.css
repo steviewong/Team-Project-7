@@ -1,0 +1,51 @@
+.header {
+  background-image: url(https://s3-us-west-2.amazonaws.com/prd-rteditorial/wp-content/uploads/2018/03/13153742/RT_300EssentialMovies_700X250.jpg) ;
+  background-repeat: repeat;
+  height: 100%;
+  width: auto;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+li {
+    float: left;
+} 
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 10px 45px;
+    text-decoration: none;
+} 
+li a:hover {
+  background-color: #111;
+}
+body {
+  font-family: "Arial", sans-serif;
+} 
+h1 {
+  font-family: "Arial", sans-serif;
+  text-align: center;
+  color: white;
+  font-size: 50px;
+}
+h3 {
+  color:white;
+  font-size: 20px;
+}
+body, html {
+  height: 100%
+}
+.buttons {
+  background-color: azure;
+  font-family: "Arial", sans-serif;
+  font-size: 20px;
+  
+}
