@@ -1,5 +1,5 @@
-Searching for a movie of a specific rating, runtime, genre
-As a user, after logging in I should be taken to the main page where there will be multiple filters where I can then input a specific rating, runtime or genre. I should  
-then be able to type in the specific runtime, which if it is not in an accepted format will give an error message. The genre and rating will be a dropdown which I could
-also click on. There will be a search button to be clicked once I have specified all the filters I want. Once it is clicked, all the searches will show up 
-and categorized. If genre isn't specified, it will be specified based on the weather. I can then click on each one and read more about it.  
+As a logged-in user, I should be taken to the main page where I can either be recommended a random movie based on the weather or customer filters. 
+These custom filters include: rating, runtime and genre. I should then be able to type in the specific runtime, which if it is not in an accepted format will give 
+an error message. Runtimes +/- 20 minutes of the specified runtime will be accepted. Additionally, I can specify the genre through a dropdown menu containing all 
+accepted genres. I can also specify the desired rating through a dropdown menu with the following ratings: <1, 1-1.5, 1.5-2, 2-2.5, 2.5-3, 3-3.5, 3.5-4, 4-4.5, 4.5+. 
+Once I am satsified with my inputs, I will click the search button and a random movie that meets my constraints will be displayed. 
