@@ -2,7 +2,7 @@ import requests
 from getpass import getuser
 import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
-from numpy import randint
+from numpy.random import randint, choice
 
 
 import os, base64
@@ -13,7 +13,7 @@ app = Flask(__name__, template_folder='.')
 def index():
     return render_template("index.html")
 
-@app.route('weather', methods = ["GET"])
+@app.route('/weather', methods = ["GET"])
 def getMovieForWeather():
     result = getWeather()
     #CALL TO IMDB API BASED ON GENRE RETURN
@@ -21,39 +21,44 @@ def getMovieForWeather():
 def getWeather():
     genre = ""
     genres = ['comedy', 'drama', 'science fiction', 'horror', 'western'\
-        'thriller', 'action', 'fantasy', 'mystery', 'romance', 'holiday']
+        'thriller', 'action', 'fantasy', 'mystery', 'romance', 'christmas']
 
-    if flask.request.method == 'GET':
-        weatherUrl = "" #WEATHER API HERE
+    if flask.request.method == 'GET':	
+        weatherUrl = "https://yahoo-weather5.p.rapidapi.com/weather"
 
-        weatherHeaders = {} #API KEYS HERE
-        
-        weatherResponse = requests.request("GET", weatherUrl, headers=weatherHeaders)
+        weatherHeaders = {
+                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+                'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
+                }
+                
+        querystring = {"location": 'boston,ma', "format": 'json', "u": 'f'}
 
+        weatherResponse = requests.request("GET", weatherUrl, headers=weatherHeaders, params=querystring)
         weatherResponseJ = weatherResponse.json()
 
-        description = "" #FIND WEATHER DESCRIPTION
-        highTemp = "" #FIND HIGH TEMP
-        lowTemp = "" #FIND LOW TEMP
+        weatherCondition = weatherResponseJ['current_observation']['condition']['text']
+        
+        temp =  weatherResponseJ['current_observation']['condition']['temperature']
 
-        #DECIDE GENRE ASSOCIATIONS
-        if description == "Sunny":
+            #DECIDE GENRE ASSOCIATIONS
+        if "Sunny" in weather:
             genre = genres[randint(0, 7, 9)]
-        elif description == "Rain":
-            if highTemp > 60:
+        elif weatherCondition == "Rain":
+            if temp > 60:
                 genre = genres[randint(1, 5, 8)]
             else:
                 genre = genres[randint()] 
-        elif description == "Cloudy":
+        else:
             genre = ""
-        elif description == "":
+        
+        return genre
 
 
 @app.route('/pic', methods =["GET"])
 def getposter():
 
     if flask.request.method == 'GET':	
-        url = "https://imdb8.p.rapidapi.com/auto-complete"
+        url = "https://imdb-api.com/en/API/SearchTitle/{APIKey}/?genres=sci-fi                                    "
         movie = input("Enter movie:")
         
     #movie = "the shawshank redemption"
@@ -63,16 +68,20 @@ def getposter():
         querystring = {"q":movie}
 
         headers = {
-		"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
+		"X-RapidAPI-Key": "k_6n57pc5d",
 		"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
         }
         response = requests.request("GET", url, headers=headers, params=querystring)
 
         responsej = response.json()
 
-        print(responsej['d'][0]['i']['imageUrl'])
+        print(responsej)
 
-        return responsej['d'][0]['i']['imageUrl']
+        #print(responsej['d'][0]['i']['imageUrl'])
+
+        #return responsej['d'][0]['i']['imageUrl']
+
+getWeather()
 
 if __name__ == '__main__':
     app.run()
