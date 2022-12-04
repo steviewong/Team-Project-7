@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <Title>Team 7 Movie Generator</Title>
+        <link rel="stylesheet" href="index.css">
+
+        response function here (call to backend)
+    </head>
+
+    <body>
+        .post-image {
+            background-color: white;
+            border: 0px;
+            margin: 20px;
+            padding: 20px;
+        }
+        
+        <h1>Movie Generator</h1>
+        <p class="description">This application will help you to choose a movie based on the weather and any other specifications you have!</p>
+        <p class="description">Type in your favorite movie!</p>
+        <div>
+            <form method="post" action="{{ url_for('/pic') }}">
+
+                <input type="text" name="movieTitle"> 
+                <br/>
+                <input type="submit" name="button" value="Show me my movie">
+
+            </form>
+        </div>
+        <div>
+            <script>
+                const url = "{{ url_for('/pic') }}">
+                
+                async function getImg() {
+                    const res = await fetch(url, 
+                    {
+                        method: 'GET'
+                    })
+                }
+                console.log(res)
+                
+        <div class="post-image">
+            <img src="" alt="">
+        </div>
+    </body>
+</html>
