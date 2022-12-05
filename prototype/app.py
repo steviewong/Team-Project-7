@@ -1,6 +1,7 @@
 import requests
 from getpass import getuser
 import flask
+import numpy
 from flask import Flask, Response, request, render_template, redirect, url_for
 from numpy.random import randint, choice
 
@@ -10,8 +11,8 @@ import os, base64
 app = Flask(__name__, template_folder='.')
 
 @app.route("/")
-def index():
-    return render_template("index.html")
+def main():
+    return render_template('login.html')
 
 @app.route('/weather', methods = ["GET"])
 def getMovieForWeather():
