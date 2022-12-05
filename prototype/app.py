@@ -95,23 +95,36 @@ def getMovieW(genre):
     movieIDs = {'action': 28, 'comedy': 35, 'drama': 18, 'fantasy': 14, 'horror': 27, 'mystery': 9648, 'romance': 10749, 'science fiction': 878, 'thriller': 53}
     id = movieIDs[genre]
 
+    #list of holiday movies
+    xmasOptions = ['the grinch', 'home alone', 'love actually', 'elf', 'miracle on 34th street', 'klaus', 'the nightmare before christmas', 'die hard',\
+        'the polar express', 'four christmases']
+
     #api call to advanced movie search api to get a series of movies based on the genre input
-    if flask.request.method == 'GET':	
-        movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
-
-        querystring = {'with_genres': id, 'page': '1'}
-
+    if flask.request.method == 'GET':
+        movieUrl = ''
+        querystring = {}
         movieHeaders = {
             'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
 	        'X-RapidAPI-Host': 'advanced-movie-search.p.rapidapi.com'
         }
 
+        if genre == 'christmas':
+            title = xmasOptions[str(randint(10))]
+            movieUrl = 'https://advanced-movie-search.p.rapidapi.com/search/movie'
+            querystring = {'query': title, 'page': '1'}
+        else:
+            movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
+            querystring = {'with_genres': id, 'page': str(randint(5))}
+
         response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 100-109, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
         movieOptions = response.json()
 
-        #selects random movie from the list of options returned from api
-        movieNum = randint(len(movieOptions))
-        movie = movieOptions[movieNum]
+        #selects random movie from the list of options returned from api, or selects the appropriate christmas movie if relevant
+        if genre == 'christmas':
+            movie = movieOptions[0]
+        else:
+            movieNum = randint(len(movieOptions))
+            movie = movieOptions[movieNum]
 
         #parses api return to find important information about movie
         movieTitle = movie['original_title']
