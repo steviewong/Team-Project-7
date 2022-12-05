@@ -116,7 +116,7 @@ def getMovieW(genre):
             movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
             querystring = {'with_genres': id, 'page': str(randint(5))}
 
-        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 100-109, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
+        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 106-109, 113-114, 116-119, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
         movieOptions = response.json()
 
         #selects random movie from the list of options returned from api, or selects the appropriate christmas movie if relevant
