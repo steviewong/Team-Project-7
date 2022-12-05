@@ -5,8 +5,8 @@ import numpy
 from flask import Flask, Response, request, render_template, redirect, url_for
 from numpy.random import randint, choice
 
-
 import os, base64
+
 
 app = Flask(__name__, template_folder='.')
 
@@ -20,6 +20,8 @@ def getMovieForWeather():
     #CALL TO IMDB API BASED ON GENRE RETURN
 
 def getWeather():
+    month = getMonth()
+
     genre = ""
     genres = ['comedy', 'drama', 'science fiction', 'horror', 'western'\
         'thriller', 'action', 'fantasy', 'mystery', 'romance', 'christmas']
@@ -28,7 +30,7 @@ def getWeather():
         weatherUrl = "https://yahoo-weather5.p.rapidapi.com/weather"
 
         weatherHeaders = {
-                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+                'X-RapidAPI-Key': '465b9bba02m--sh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
                 'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
                 }
                 
@@ -42,29 +44,44 @@ def getWeather():
         temp =  weatherResponseJ['current_observation']['condition']['temperature']
 
             #DECIDE GENRE ASSOCIATIONS
-        if "Sunny" in weather:
-            genre = genres[randint(0, 7, 9)]
-        elif weatherCondition == "Rain":
+        if month == "12":
+            if "Snow" in weatherCondition or temp < 32:
+                genre = genres[10]
+        elif "Sunny" in weatherCondition:
+            genre = genres[choice(0, 4, 6, 7, 9)]
+        elif "Rain" in weatherCondition:
             if temp > 60:
-                genre = genres[randint(1, 5, 8)]
+                genre = genres[choice(1, 3, 5)]
             else:
-                genre = genres[randint()] 
-        else:
-            genre = ""
+                genre = genres[0] 
+        elif "Snow" in weatherCondition:
+            genre = genres[0]
         
         return genre
 
+def getMonth():
+    if flask.request.method == 'GET':	
+        monthUrl = "https://world-clock.p.rapidapi.com/json/est/now"
+
+        monthHeaders = {
+            "X-RapidAPI-Key": "465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f",
+	        "X-RapidAPI-Host": "world-clock.p.rapidapi.com"
+            }
+
+        monthResponse = requests.request("GET", monthUrl, headers=monthHeaders)
+        monthResponseJ = monthResponse.json()
+
+        month = monthResponseJ['currentDateTime'][5:7]
+
+        return month
 
 @app.route('/pic', methods =["GET"])
-def getposter():
+def getMovie():
 
     if flask.request.method == 'GET':	
-        url = "https://imdb-api.com/en/API/SearchTitle/{APIKey}/?genres=sci-fi                                    "
-        movie = input("Enter movie:")
-        
-    #movie = "the shawshank redemption"
-
-        x =movie.replace(' ','%20')
+        url = "https://imdb-api.com/en/API/SearchTitle/{APIKey}/?genres=sci-fi"
+    
+        x = movie.replace(' ','%20')
 
         querystring = {"q":movie}
 
@@ -72,63 +89,11 @@ def getposter():
 		"X-RapidAPI-Key": "k_6n57pc5d",
 		"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
         }
-        response = requests.request("GET", url, headers=headers, params=querystring)
 
+        response = requests.request("GET", url, headers=headers, params=querystring)
         responsej = response.json()
 
-        print(responsej)
-
-        #print(responsej['d'][0]['i']['imageUrl'])
-
-        #return responsej['d'][0]['i']['imageUrl']
-
-getWeather()
+    return render_template('result.html', poster_url=responsej)    
 
 if __name__ == '__main__':
-    app.run()
-
-#movie = input("Enter movie:")
-#print("Username is: " + movie)
-#movie = "the shawshank redemption"
-
-
-#x =movie.replace(' ','%20')
-
-
-
-#code = "/auto-complete?q=" + x
-
-#conn.request("GET", code, headers=headers)
-
-#res = conn.getresponse()
-#data = res.read()
-
-#print(res.json())
-#print(type(data))
-#x =json.load(data)
-#print(x['l'])
-
-
-#print(data['l'])
-
-
-
-#decoded = data.decode("utf-8")
-
-
-# decoded
-
-# main_response = data
-
-
-# if "results" in main_response.body:
-        
-#     best_match = main_response.body["results"][0]
-#     movie_id = best_match["id"][7:-1]  
-            
-#     movie_title = best_match["title"]
-            
-#     movie_year = str(best_match["year"])
-
-
-# print(movie_year)
+    app.run()    
