@@ -7,6 +7,7 @@ from numpy.random import randint, choice
 
 import os, base64
 
+#CHECK LINES NOTED IN CITATION COMMENTS
 
 app = Flask(__name__, template_folder='.')
 
@@ -23,8 +24,8 @@ def getWeather():
     month = getMonth()
 
     genre = ""
-    genres = ['comedy', 'drama', 'science fiction', 'horror', 'western'\
-        'thriller', 'action', 'fantasy', 'mystery', 'romance', 'christmas']
+    genres = ['comedy', 'drama', 'science fiction', 'horror', 'thriller',\
+        'action', 'fantasy', 'mystery', 'romance', 'christmas']
 
     if flask.request.method == 'GET':	
         weatherUrl = "https://yahoo-weather5.p.rapidapi.com/weather"
@@ -43,19 +44,24 @@ def getWeather():
         
         temp =  weatherResponseJ['current_observation']['condition']['temperature']
 
-            #DECIDE GENRE ASSOCIATIONS
         if month == "12":
             if "Snow" in weatherCondition or temp < 32:
                 genre = genres[10]
         elif "Sunny" in weatherCondition:
-            genre = genres[choice(0, 4, 6, 7, 9)]
+            genre = genres[choice(0, 1, 5, 6, 8)]
         elif "Rain" in weatherCondition:
             if temp > 60:
-                genre = genres[choice(1, 3, 5)]
+                genre = genres[choice(0, 1, 2, 6, 7)]
             else:
-                genre = genres[0] 
+                genre = genres[choice(1, 2, 3, 4, 7)] 
         elif "Snow" in weatherCondition:
-            genre = genres[0]
+            genre = genres[randint(6, 9)]
+        elif "Cloudy" in weatherCondition:
+            genre = genres[choice(1, 2, 4, 5, 7)]
+        elif "Storm" in weatherCondition:
+            genre = genres[choice(1, 3, 4, 5, 7)]
+        else:
+            genre = genres[randint(0, 10)]
         
         return genre
 
@@ -68,7 +74,7 @@ def getMonth():
 	        "X-RapidAPI-Host": "world-clock.p.rapidapi.com"
             }
 
-        monthResponse = requests.request("GET", monthUrl, headers=monthHeaders)
+        monthResponse = requests.request("GET", monthUrl, headers=monthHeaders) #code lines 64-71, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
         monthResponseJ = monthResponse.json()
 
         month = monthResponseJ['currentDateTime'][5:7]
