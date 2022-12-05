@@ -14,21 +14,21 @@ genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance'
 #CHECK LINES NOTED IN CITATION COMMENTS
 
 #declare app using flask
-app = Flask(__name__, template_folder='.')
+app = Flask(__name__, template_folder='templates')
 
 #first route for home page - prompts user to login
 @app.route('/')
 def main():
-    return render_template('login.html')
+    return render_template('showWeather.html')
 
 #route for if user selects weather option to generate movie
-@app.route('/weather', methods = ['GET', 'POST'])
+@app.route("/getMovieForWeather", methods = ['GET', 'POST'])
 def getMovieForWeather(): #wrapper function to call both apis in order
     result = getWeather()
     movie = getMovie(result)
     return render_template('weather.html', movie=movie)
 
-@app.route('/filters', methods = ['GET', 'POST'])
+@app.route("/getMovieForFilter", methods = ['GET', 'POST'])
 def getMovieForFilter(): #wrapper function to call the movie api based on filter input
     filter = request.form.get('genre')
     movie = getMovie(filter)
@@ -153,5 +153,24 @@ def getMovie(genre):
         #return most important info about movie
         return [movieTitle, movieImage, movieGenres, movieDescription]  
 
+@app.route('/weatherTest', methods = ['GET', 'POST'])
+def weatherTest():
+    if flask.request.method == 'GET':	
+        url = 'https://yahoo-weather5.p.rapidapi.com/weather'
+
+        headers = {
+                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+                'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
+                }
+                
+        querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
+
+        response = requests.request('GET', url, headers=headers, params=querystring) #code lines 39-48, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
+        responseJ = response.json()
+
+        weatherCond = responseJ['current_observation']['condition']['text']
+
+        return render_template('weatherBoston.html', weatherCond=weatherCond)
+
 if __name__ == '__main__':
-    app.run()    
+    app.run(debug=True)    
