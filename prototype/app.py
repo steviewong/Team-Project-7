@@ -1,3 +1,4 @@
+#imports
 import requests
 from getpass import getuser
 import flask
@@ -7,99 +8,131 @@ from numpy.random import randint, choice
 
 import os, base64
 
+#GLOBAL VARIABLE
+genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller', 'christmas']
+
 #CHECK LINES NOTED IN CITATION COMMENTS
 
+#declare app using flask
 app = Flask(__name__, template_folder='.')
 
-@app.route("/")
+#first route for home page - prompts user to login
+@app.route('/')
 def main():
     return render_template('login.html')
 
-@app.route('/weather', methods = ["GET"])
-def getMovieForWeather():
+#route for if user selects weather option to generate movie
+@app.route('/weather', methods = ['GET'])
+def getMovieForWeather(): #wrapper function to call both apis in order
     result = getWeather()
-    #CALL TO IMDB API BASED ON GENRE RETURN
+    movie = getMovieW(result)
+    return render_template('weather.html', movie=movie)
 
 def getWeather():
+    #calls function to obtain current month
     month = getMonth()
 
-    genre = ""
-    genres = ['comedy', 'drama', 'science fiction', 'horror', 'thriller',\
-        'action', 'fantasy', 'mystery', 'romance', 'christmas']
+    genre = ''
 
+    #api call to Yahoo weather api to get weather description and current temperature
     if flask.request.method == 'GET':	
-        weatherUrl = "https://yahoo-weather5.p.rapidapi.com/weather"
+        weatherUrl = 'https://yahoo-weather5.p.rapidapi.com/weather'
 
         weatherHeaders = {
                 'X-RapidAPI-Key': '465b9bba02m--sh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
                 'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
                 }
                 
-        querystring = {"location": 'boston,ma', "format": 'json', "u": 'f'}
+        querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
 
-        weatherResponse = requests.request("GET", weatherUrl, headers=weatherHeaders, params=querystring)
+        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 39-48, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
 
         weatherCondition = weatherResponseJ['current_observation']['condition']['text']
-        
-        temp =  weatherResponseJ['current_observation']['condition']['temperature']
+        temp = weatherResponseJ['current_observation']['condition']['temperature']
 
-        if month == "12":
-            if "Snow" in weatherCondition or temp < 32:
+        #series of conditionals to determine appropriate genre based on a combination of the month, temp, and weather condition
+        if month == '12':
+            if 'Snow' in weatherCondition or temp < 32:
                 genre = genres[10]
-        elif "Sunny" in weatherCondition:
-            genre = genres[choice(0, 1, 5, 6, 8)]
-        elif "Rain" in weatherCondition:
+        elif 'Sunny' in weatherCondition:
+            genre = genres[choice(0, 1, 2, 3, 6)]
+        elif 'Rain' in weatherCondition:
             if temp > 60:
-                genre = genres[choice(0, 1, 2, 6, 7)]
+                genre = genres[choice(1, 2, 3, 5, 7)]
             else:
-                genre = genres[choice(1, 2, 3, 4, 7)] 
-        elif "Snow" in weatherCondition:
-            genre = genres[randint(6, 9)]
-        elif "Cloudy" in weatherCondition:
-            genre = genres[choice(1, 2, 4, 5, 7)]
-        elif "Storm" in weatherCondition:
-            genre = genres[choice(1, 3, 4, 5, 7)]
+                genre = genres[choice(2, 4, 5, 7, 8)] 
+        elif 'Snow' in weatherCondition:
+            genre = genres[choice(3, 5, 6)]
+        elif 'Cloudy' in weatherCondition:
+            genre = genres[choice(0, 2, 5, 7, 8)]
+        elif 'Storm' in weatherCondition:
+            genre = genres[choice(0, 2, 4, 5, 8)]
         else:
             genre = genres[randint(0, 10)]
         
         return genre
 
 def getMonth():
+    #api call to world clock api to get current month
     if flask.request.method == 'GET':	
-        monthUrl = "https://world-clock.p.rapidapi.com/json/est/now"
+        monthUrl = 'https://world-clock.p.rapidapi.com/json/est/now'
 
         monthHeaders = {
-            "X-RapidAPI-Key": "465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f",
-	        "X-RapidAPI-Host": "world-clock.p.rapidapi.com"
+            'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+	        'X-RapidAPI-Host': 'world-clock.p.rapidapi.com'
             }
 
-        monthResponse = requests.request("GET", monthUrl, headers=monthHeaders) #code lines 64-71, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
+        monthResponse = requests.request('GET', monthUrl, headers=monthHeaders) #code lines 78-86, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
         monthResponseJ = monthResponse.json()
 
         month = monthResponseJ['currentDateTime'][5:7]
 
         return month
 
-@app.route('/pic', methods =["GET"])
-def getMovie():
+def getMovieW(genre):
+    #dictionary to connect movie genres to their associated id number in the api used
+    movieIDs = {'action': 28, 'comedy': 35, 'drama': 18, 'fantasy': 14, 'horror': 27, 'mystery': 9648, 'romance': 10749, 'science fiction': 878, 'thriller': 53}
+    id = movieIDs[genre]
 
+    #api call to advanced movie search api to get a series of movies based on the genre input
     if flask.request.method == 'GET':	
-        url = "https://imdb-api.com/en/API/SearchTitle/{APIKey}/?genres=sci-fi"
-    
-        x = movie.replace(' ','%20')
+        movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
 
-        querystring = {"q":movie}
+        querystring = {'with_genres': id, 'page': '1'}
 
-        headers = {
-		"X-RapidAPI-Key": "k_6n57pc5d",
-		"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
+        movieHeaders = {
+            'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+	        'X-RapidAPI-Host': 'advanced-movie-search.p.rapidapi.com'
         }
 
-        response = requests.request("GET", url, headers=headers, params=querystring)
-        responsej = response.json()
+        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 100-109, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
+        movieOptions = response.json()
 
-    return render_template('result.html', poster_url=responsej)    
+        #selects random movie from the list of options returned from api
+        movieNum = randint(len(movieOptions))
+        movie = movieOptions[movieNum]
+
+        #parses api return to find important information about movie
+        movieTitle = movie['original_title']
+        movieImage = movie['backdrop_path']
+
+        genreIDs = movie['genre_ids']
+        num = 0
+        movieGenres = ''
+
+        #CHECK LOOP/COND LOGIC
+        #search through dictionary to find each genre associated with chosen movie
+        for i in genreIDs:
+            for g in movieIDs:
+                if movieIDs[g] == i:
+                    movieGenres += genres[num], ", "
+                num += 1
+
+        movieDescription = movie['overview']
+
+        #return most important info about movie
+        return [movieTitle, movieImage, movieGenres, movieDescription]  
 
 if __name__ == '__main__':
     app.run()    
