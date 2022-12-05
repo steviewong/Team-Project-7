@@ -22,11 +22,17 @@ def main():
     return render_template('login.html')
 
 #route for if user selects weather option to generate movie
-@app.route('/weather', methods = ['GET'])
+@app.route('/weather', methods = ['GET', 'POST'])
 def getMovieForWeather(): #wrapper function to call both apis in order
     result = getWeather()
-    movie = getMovieW(result)
+    movie = getMovie(result)
     return render_template('weather.html', movie=movie)
+
+@app.route('/filters', methods = ['GET', 'POST'])
+def getMovieForFilter(): #wrapper function to call the movie api based on filter input
+    filter = request.form.get('genre')
+    movie = getMovie(filter)
+    return movie
 
 def getWeather():
     #calls function to obtain current month
@@ -90,7 +96,7 @@ def getMonth():
 
         return month
 
-def getMovieW(genre):
+def getMovie(genre):
     #dictionary to connect movie genres to their associated id number in the api used
     movieIDs = {'action': 28, 'comedy': 35, 'drama': 18, 'fantasy': 14, 'horror': 27, 'mystery': 9648, 'romance': 10749, 'science fiction': 878, 'thriller': 53}
     id = movieIDs[genre]
