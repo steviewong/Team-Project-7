@@ -1,22 +1,47 @@
 #imports
 import requests
-from getpass import getuser
 import flask
+import flask_sqlalchemy
 import numpy
+from getpass import getuser
 from flask import Flask, Response, request, render_template, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 from numpy.random import randint, choice
 
 import os, base64
+from sqlalchemy.sql import func
 
 #GLOBAL VARIABLE
 genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller', 'christmas']
 
 #CHECK LINES NOTED IN CITATION COMMENTS
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 #declare app using flask
 app = Flask(__name__, template_folder='templates')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-#first route for home page - prompts user to login
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    username = db.Column(db.String(30), primary_key=True)
+    firstName = db.Column(db.String(30), nullable=True)
+    lastName = db.Column(db.String(30), nullable=True)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(20), nullable=False)
+    timeCreated = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    moviesToWatch = db.Column(db.Text)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+@app.route('/createUser/', methods=['GET', 'POST'])
+def createUser():
+    return render_template('createUser.html')
+
+#route for home page - prompts user to login
 @app.route('/')
 def main():
     return render_template('showWeather.html')
