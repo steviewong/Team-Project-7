@@ -5,7 +5,7 @@ from flask import Flask, Response, request, render_template, redirect, url_for, 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, LoginForm, login_user
+from wtforms import StringField, PasswordField, SubmitField
 from numpy.random import randint, choice
 
 import os, base64
@@ -18,6 +18,9 @@ oauthClientSecret = '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'
 
 #CHECK LINES NOTED IN CITATION COMMENTS
 
+#init database directory
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 #create app
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
@@ -25,12 +28,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
 
 #init database
-basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy(app)
 
 #init login manager
-login_manager = LoginManager()
-login_manager.init_app(app)
+#login_manager = LoginManager()
+#login_manager.init_app(app)
 
 #set up User class which will represent each dataset in the database
 class User(flask_login.UserMixin, db.Model):
@@ -45,9 +47,9 @@ class User(flask_login.UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-@login_manager.user_loader
-def load_user(username):
-    return User.get(username)
+#@login_manager.user_loader
+#def load_user(username):
+#    return User.get(username)
 
 #route to add new user to database
 @app.route('/createUser/', methods=['GET', 'POST'])
@@ -73,7 +75,7 @@ def login():
 #route for home page - prompts user to login
 @app.route('/')
 def main():
-    return render_template('home.html')
+    return render_template('showWeather.html')
 
 #route for if user selects weather option to generate movie
 @app.route("/getMovieForWeather", methods = ['GET', 'POST'])
@@ -99,7 +101,7 @@ def getWeather():
         weatherUrl = 'https://yahoo-weather5.p.rapidapi.com/weather'
 
         weatherHeaders = {
-                'X-RapidAPI-Key': '465b9bba02m--sh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
                 'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
                 }
                 
@@ -206,9 +208,9 @@ def getMovie(genre):
         #return most important info about movie
         return [movieTitle, movieImage, movieGenres, movieDescription]  
 
-@app.route('/weatherTest', methods = ['GET', 'POST'])
+#@app.route('/weatherTest', methods = ['GET', 'POST'])
 def weatherTest():
-    if flask.request.method == 'GET':	
+    #if flask.request.method == 'GET':	
         url = 'https://yahoo-weather5.p.rapidapi.com/weather'
 
         headers = {
@@ -222,8 +224,11 @@ def weatherTest():
         responseJ = response.json()
 
         weatherCond = responseJ['current_observation']['condition']['text']
+        print(weatherCond)
 
         return render_template('weatherBoston.html', weatherCond=weatherCond)
+
+weatherTest()
 
 if __name__ == '__main__':
     app.run(debug=True)    
