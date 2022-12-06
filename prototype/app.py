@@ -63,7 +63,7 @@ def getWeather():
                 genre = genres[10]
         elif 'Sunny' in weatherCondition:
             genre = genres[choice(0, 1, 2, 3, 6)]
-        elif 'Rain' in weatherCondition:
+        elif 'Rain' or 'Showers' in weatherCondition:
             if temp > 60:
                 genre = genres[choice(1, 2, 3, 5, 7)]
             else:
