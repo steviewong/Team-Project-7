@@ -4,13 +4,17 @@ from getpass import getuser
 from flask import Flask, Response, request, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, LoginForm, login_user
 from numpy.random import randint, choice
 
 import os, base64
 from sqlalchemy.sql import func
 
-#GLOBAL VARIABLE
+#GLOBAL VARIABLES
 genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller', 'christmas']
+oauthClientID = '277828949854-f8po6ag57v9od74sp727pato3nmd02r8.apps.googleusercontent.com'
+oauthClientSecret = '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'
 
 #CHECK LINES NOTED IN CITATION COMMENTS
 
@@ -29,7 +33,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 #set up User class which will represent each dataset in the database
-class User(db.Model):
+class User(flask_login.UserMixin, db.Model):
     username = db.Column(db.String(30), primary_key=True)
     firstName = db.Column(db.String(30), nullable=True)
     lastName = db.Column(db.String(30), nullable=True)
@@ -61,6 +65,12 @@ def createUser():
         return flask.redirect(url_for('moviegen'))
 
     return render_template('createUser.html') #code for lines 19, 23-56 adapted from https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        login_user(User.get(username))
 
 #route for home page - prompts user to login
 @app.route('/')
