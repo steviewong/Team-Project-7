@@ -7,26 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <form method="POST" action="/getMovieForFilter"></form>   -->
-        <label for="fname">Rating:</label><br>
-            <select name="rating" id="rating">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
+    <!-- <form action="/.php"></form>   -->
+    <div class = "dropdown">
+        <label for="fname">Genre:</label><br>
+            <select name="genre" id="genre">
+                <option value="">--Please choose an option--</option>
+                <option value="action">Action</option>
+                <option value="comedy">Comedy</option>
+                <option value="drama">Drama</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="horror">Horror</option>
+                <option value="mystery">Mystery</option>
+                <option value="romance">Romance</option>
+                <option value="science fiction">Science Fiction</option>
+                <option value="thriller">Thriller</option>
+                <option value="christmas">Christmas</option>
             </select>
         <br>
-        <label for="genre">Genre:</label><br>
-            <input type="text" id="genre" name="genre"><br>
-        <label for="runtime">Runtime:</label><br>
-            <input type="text" id="runtime" name="runtime"><br><br>
-        <input type="submit" value="Submit">
-    </form>
+    </class>
+    <!-- </form> -->
 </body>
 </html>
