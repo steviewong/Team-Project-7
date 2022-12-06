@@ -140,7 +140,6 @@ def getMovie(genre):
         num = 0
         movieGenres = ''
 
-        #CHECK LOOP/COND LOGIC
         #search through dictionary to find each genre associated with chosen movie
         for i in genreIDs:
             for g in movieIDs:
