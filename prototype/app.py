@@ -68,14 +68,12 @@ def createUser():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    login_form = LoginForm()
-    if login_form.validate_on_submit():
-        login_user(User.get(username))
+    return render_template('login.html')
 
 #route for home page - prompts user to login
 @app.route('/')
 def main():
-    return render_template('showWeather.html')
+    return render_template('home.html')
 
 #route for if user selects weather option to generate movie
 @app.route("/getMovieForWeather", methods = ['GET', 'POST'])
