@@ -18,13 +18,14 @@ genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-#declare app using flask
+#initialize sqlite database and app using flask
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+#set up User class which will represent each dataset in the database
 class User(db.Model):
     username = db.Column(db.String(30), primary_key=True)
     firstName = db.Column(db.String(30), nullable=True)
@@ -37,9 +38,22 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+#route to add new user to database
 @app.route('/createUser/', methods=['GET', 'POST'])
 def createUser():
-    return render_template('createUser.html')
+    if flask.request.method == 'POST':
+        username = flask.request.form['username']
+        firstName = flask.request.form['firstName']
+        lastName = flask.request.form['lasstName']
+        email = flask.request.form['email']
+        password = flask.request.form['password']
+        
+        db.session.add(User)
+        db.session.commit()
+
+        return flask.redirect(url_for('moviegen'))
+
+    return render_template('createUser.html') #code for lines 19, 23-56 adapted from https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
 
 #route for home page - prompts user to login
 @app.route('/')
@@ -76,7 +90,7 @@ def getWeather():
                 
         querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
 
-        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 39-48, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
+        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 84-93, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
 
         weatherCondition = weatherResponseJ['current_observation']['condition']['text']
@@ -114,7 +128,7 @@ def getMonth():
 	        'X-RapidAPI-Host': 'world-clock.p.rapidapi.com'
             }
 
-        monthResponse = requests.request('GET', monthUrl, headers=monthHeaders) #code lines 78-86, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
+        monthResponse = requests.request('GET', monthUrl, headers=monthHeaders) #code lines 124-131, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
         monthResponseJ = monthResponse.json()
 
         month = monthResponseJ['currentDateTime'][5:7]
@@ -147,7 +161,7 @@ def getMovie(genre):
             movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
             querystring = {'with_genres': id, 'page': str(randint(5))}
 
-        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 106-109, 113-114, 116-119, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
+        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 151-154, 158-159, 161-164, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
         movieOptions = response.json()
 
         #selects random movie from the list of options returned from api, or selects the appropriate christmas movie if relevant
