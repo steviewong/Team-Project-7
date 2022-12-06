@@ -1,11 +1,9 @@
 #imports
-import requests
-import flask
-import flask_sqlalchemy
-import numpy
+import requests, flask, flask_sqlalchemy, flask_login, numpy
 from getpass import getuser
-from flask import Flask, Response, request, render_template, redirect, url_for
+from flask import Flask, Response, request, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from numpy.random import randint, choice
 
 import os, base64
@@ -16,14 +14,19 @@ genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance'
 
 #CHECK LINES NOTED IN CITATION COMMENTS
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-#initialize sqlite database and app using flask
+#create app
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
 
+#init database
+basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy(app)
+
+#init login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 #set up User class which will represent each dataset in the database
 class User(db.Model):
@@ -37,6 +40,10 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+@login_manager.user_loader
+def load_user(username):
+    return User.get(username)
 
 #route to add new user to database
 @app.route('/createUser/', methods=['GET', 'POST'])
