@@ -1,2 +1,3 @@
 As a logged in user, I want to be able to search a movie name to see its basic information. I will type the desired movie name in the search bar, and it will show me
-the movie poster, title, ranking, and actors. If something goes wrong, I will be sent back to the home page so that I do not get stuck on the search bar. 
+the movie poster, title, ranking, and actors. If something goes wrong, I will be sent back to the home page so that I do not get stuck on the search bar. After I have
+searched the movie, I can click back to home, search another movie, or add the movie to the "Watch Later" folder (see user story #5).
