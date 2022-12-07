@@ -12,8 +12,12 @@
     <h1 class= “header-text”> Movie Generator </h1>
     <center><h3>Don't know what to watch? This application can help you choose a movie based on the weather or any other specifications you have!</h3></center>
     <center>
-      <button class = "buttons"><a href='/getMovieForWeather'>Weather</a></button>
-      <button class = "buttons"><a href='/filter'>Filter</a></button>
+      <form method="post" action="{{ url_for('getMovieForWeather') }}">
+        <input type="submit" name="button" value="Recommend a movie">
+    </form>
+    <form method="post" action="{{ url_for('getMovieForFilter') }}">
+      <input type="submit" name="button" value="Filter by genre">
+  </form>
     </center>
   </div>
 </body>
