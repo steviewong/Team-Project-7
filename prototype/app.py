@@ -1,5 +1,5 @@
 #imports
-import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, flask_dance.contrib.google, logging
+import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, logging
 from getpass import getuser
 from flask import Flask, Response, request, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
@@ -62,13 +62,13 @@ def google():
     AUTH_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 
     auth.register(
-        name='google'
-        client_id = AUTH_CLIENT_ID
-        client_secret = AUTH_CLIENT_SECRET
-        server_metadata_url = AUTH_URL
-        client_kwargs = {
-            'scope': 'openid email profile'
-        }
+        name = 'google'
+        #client_id = AUTH_CLIENT_ID
+        #client_secret = AUTH_CLIENT_SECRET
+        #server_metadata_url = AUTH_URL
+        #client_kwargs = {
+            #'scope': 'openid email profile'
+        #}
     )
 
     redirect = url_for('google_auth', _external = True)
@@ -240,7 +240,7 @@ def getMovie(genre):
 
 #@app.route('/weatherTest', methods = ['GET', 'POST'])
 def weatherTest():
-    #if flask.request.method == 'GET':	
+    if flask.request.method == 'POST':	
         url = 'https://yahoo-weather5.p.rapidapi.com/weather'
 
         headers = {
@@ -250,15 +250,16 @@ def weatherTest():
                 
         querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
 
-        response = requests.request('GET', url, headers=headers, params=querystring) #code lines 39-48, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
+        response = requests.request("GET", url, headers=headers, params=querystring) #code lines 39-48, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         responseJ = response.json()
 
         weatherCond = responseJ['current_observation']['condition']['text']
         print(weatherCond)
 
-        return render_template('weatherBoston.html', weatherCond=weatherCond)
+        return render_template('./weatherBoston.html', weatherCond=weatherCond)
 
-weatherTest()
+with app.test_request_context('showWeather.html'):
+    weatherTest()
 
 if __name__ == '__main__':
     app.run(debug=True)    
