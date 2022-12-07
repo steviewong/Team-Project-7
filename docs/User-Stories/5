@@ -1,7 +1,5 @@
 As a logged-in user, I want to be able to share movies that I like or dislike with my friends in order to discuss the movies. After using the search 
 function to find movies, I want to be able to click on the movie I am interested in and find a clearly marked share button. When I click on the share 
-button, I want to be able to choose to either generate a link to send to people or to send it to them via text message within the app. If I click on the
-share button and something goes wrong, such as the buttons to share it not appearing, I want there to be an escape button that I can press to go back to
-the original screen with the selected movie so that I do not get stuck on the share screen and have to reboot the entire app. I want the generated link to
-bring the person it is shared with to the same page with the movie description I am looking at when I send the link, so that we can discuss the movie and
-they know the same information about it that I do.
+button, I want to be able to share to a social media platform like Facebook. If I click on the share button and something goes wrong, such as the buttons to share it 
+doesn't work, I want to be able to go back to where the movie information appeared. I want the generated link to bring the person it is shared with to the same page with the movie description I am looking at when I 
+send the link, so that we can discuss the movie and they know the same information about it that I do.
