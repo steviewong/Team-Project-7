@@ -6,3 +6,5 @@ numpy
 blinker
 python-dotenv
 requests
+oauthlib
+pyOpenSSL
