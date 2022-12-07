@@ -71,11 +71,9 @@ def getposter():
 
 def posty(movie):
    
-
 	url = "https://imdb8.p.rapidapi.com/auto-complete"
 
-		
-	x =movie.replace(' ','%20')
+	x = movie.replace(' ','%20')
 
 	querystring = {"q":movie}
 
@@ -85,13 +83,9 @@ def posty(movie):
 	}
 
 	response = requests.request("GET", url, headers=headers, params=querystring)
-
-	responsej = response.json()
-    
-    img = responsej['d'][0]['i']['imageUrl']
-		
-
-	return img
+	responsej = response.json()['d'][0]['i']['imageUrl']
+	
+	return responsej
 
     
    
