@@ -1,3 +1,4 @@
+/* main page */
 .header {
   background-image: url(https://s3-us-west-2.amazonaws.com/prd-rteditorial/wp-content/uploads/2018/03/13153742/RT_300EssentialMovies_700X250.jpg) ;
   background-repeat: repeat;
@@ -47,5 +48,29 @@ body, html {
   background-color: azure;
   font-family: "Arial", sans-serif;
   font-size: 20px;
-  
+}
+
+/* filter page */
+.dropdown {
+  position: relative;
+  text-align: center;
+  margin-top:auto;
+}
+.filterb{
+  background-image: url(https://cdn.wallpapersafari.com/60/40/yAn3Ow.jpg);
+  background-size: 100%;
+}
+.labelf {
+  font-size: 25px;
+  color: white;
+}
+
+/* weather page */
+.bodyp {
+  background-image: url(https://cdn.wallpapersafari.com/60/40/yAn3Ow.jpg);
+  background-size: 100%;
+}
+.weatherp {
+  font-size: 25px;
+  color: white;
 }
