@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form method="POST" action="/getMovieForFilter"></form>   -->
+        <label for="fname">Rating:</label><br>
+            <select name="rating" id="rating">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        <br>
+        <label for="genre">Genre:</label><br>
+            <input type="text" id="genre" name="genre"><br>
+        <label for="runtime">Runtime:</label><br>
+            <input type="text" id="runtime" name="runtime"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

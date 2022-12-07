@@ -3,5 +3,5 @@ function to find movies, I want to be able to click on the movie I am interested
 button, I want to be able to choose to either generate a link to send to people or to send it to them via text message within the app. If I click on the
 share button and something goes wrong, such as the buttons to share it not appearing, I want there to be an escape button that I can press to go back to
 the original screen with the selected movie so that I do not get stuck on the share screen and have to reboot the entire app. I want the generated link to
-bring the person I send it to to the same page with the movie description that I am looking at when I send the link, so that we can discuss the movie and
+bring the person it is shared with to the same page with the movie description I am looking at when I send the link, so that we can discuss the movie and
 they know the same information about it that I do.

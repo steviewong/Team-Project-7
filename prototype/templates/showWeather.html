@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="index.css">
+
+    </head>
+
+    <body>
+        
+        <h1>Weather Generator</h1>
+        <p class="description">This application will show you the weather in Boston</p>
+        <div>
+            <form method="post" action="{{ url_for('weatherTest') }}">
+                <input type="submit" name="button" value="Show me the weather">
+            </form>
+        </div>
+    </body>
+</html>
