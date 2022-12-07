@@ -1,12 +1,13 @@
 #imports
-import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, logging
+import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, logging, oauthlib
 from getpass import getuser
-from flask import Flask, Response, request, render_template, redirect, url_for, session
+from flask import Flask, Response, request, render_template, redirect, url_for, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_wtf import FlaskForm
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
+from oauthlib.oauth2 import WebApplicationClient
 from wtforms import StringField, PasswordField, SubmitField
 from numpy.random import randint, choice
 
@@ -21,7 +22,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 #create app
 app = Flask(__name__, template_folder='templates')
-app.config['SERVER_NAME'] = 'localhost:5000'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
@@ -238,7 +238,7 @@ def getMovie(genre):
         #return most important info about movie
         return [movieTitle, movieImage, movieGenres, movieDescription]  
 
-#@app.route('/weatherTest', methods = ['GET', 'POST'])
+@app.route('/static/weatherTest', methods = ['GET', 'POST'])
 def weatherTest():
     if flask.request.method == 'POST':	
         url = 'https://yahoo-weather5.p.rapidapi.com/weather'
@@ -254,12 +254,12 @@ def weatherTest():
         responseJ = response.json()
 
         weatherCond = responseJ['current_observation']['condition']['text']
-        print(weatherCond)
 
-        return render_template('./weatherBoston.html', weatherCond=weatherCond)
+        return render_template('weatherBoston.html', weatherCond=weatherCond)
 
-with app.test_request_context('showWeather.html'):
-    weatherTest()
 
 if __name__ == '__main__':
-    app.run(debug=True)    
+    app.run(debug=True,
+            host='0.0.0.0',
+            port=8000,
+            threaded=True)    
