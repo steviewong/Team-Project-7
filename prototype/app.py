@@ -105,29 +105,30 @@ def login():
 #route for home page - prompts user to login
 @app.route('/')
 def main():
-    return render_template('showWeather.html')
+    return render_template('moviegen.html')
 
 #route for if user selects weather option to generate movie
-@app.route("/getMovieForWeather", methods = ['GET', 'POST'])
+@app.route("/static/getMovieForWeather", methods = ['GET', 'POST'])
 def getMovieForWeather(): #wrapper function to call both apis in order
-    result = getWeather()
-    movie = getMovie(result)
+    result = getWeather(flask.request.method)
+    print(result)
+    movie = getMovie(result, flask.request.method)
     return render_template('weather.html', movie=movie)
 
-@app.route("/getMovieForFilter", methods = ['GET', 'POST'])
+@app.route("/static/getMovieForFilter", methods = ['GET', 'POST'])
 def getMovieForFilter(): #wrapper function to call the movie api based on filter input
     filter = request.form.get('genre')
     movie = getMovie(filter)
     return movie
 
-def getWeather():
+def getWeather(method):
     #calls function to obtain current month
     month = getMonth()
 
     genre = ''
 
     #api call to Yahoo weather api to get weather description and current temperature
-    if flask.request.method == 'GET':	
+    if method == 'POST':	
         weatherUrl = 'https://yahoo-weather5.p.rapidapi.com/weather'
 
         weatherHeaders = {
@@ -148,21 +149,27 @@ def getWeather():
             if 'Snow' in weatherCondition or temp < 32:
                 genre = genres[10]
         elif 'Sunny' in weatherCondition:
-            genre = genres[choice(0, 1, 2, 3, 6)]
+            possGenSunny = [0, 1, 2, 3, 6]
+            genre = genres[choice(possGenSunny)]
         elif 'Rain' or 'Showers' in weatherCondition:
             if temp > 60:
-                genre = genres[choice(1, 2, 3, 5, 7)]
+                possGenRainHT = [1, 2, 3, 5, 7]
+                genre = genres[choice(possGenRainHT)]
             else:
-                genre = genres[choice(2, 4, 5, 7, 8)] 
+                possGenRainLT = [2, 4, 5, 7, 8]
+                genre = genres[choice(possGenRainLT)] 
         elif 'Snow' in weatherCondition:
-            genre = genres[choice(3, 5, 6)]
+            possGenSnow = [3, 5, 6]
+            genre = genres[choice(possGenSnow)]
         elif 'Cloudy' in weatherCondition:
-            genre = genres[choice(0, 2, 5, 7, 8)]
+            possGenCloudy = [0, 2, 5, 7, 8]
+            genre = genres[choice(possGenCloudy)]
         elif 'Storm' in weatherCondition:
-            genre = genres[choice(0, 2, 4, 5, 8)]
+            possGenStorm = [0, 2, 4, 5, 8]
+            genre = genres[choice(possGenStorm)]
         else:
             genre = genres[randint(0, 10)]
-        
+
         return genre
 
 def getMonth():
@@ -182,17 +189,17 @@ def getMonth():
 
         return month
 
-def getMovie(genre):
+def getMovie(genre, method):
     #dictionary to connect movie genres to their associated id number in the api used
     movieIDs = {'action': 28, 'comedy': 35, 'drama': 18, 'fantasy': 14, 'horror': 27, 'mystery': 9648, 'romance': 10749, 'science fiction': 878, 'thriller': 53}
-    id = movieIDs[genre]
+    id = str(movieIDs[genre])
 
     #list of holiday movies
     xmasOptions = ['the grinch', 'home alone', 'love actually', 'elf', 'miracle on 34th street', 'klaus', 'the nightmare before christmas', 'die hard',\
         'the polar express', 'four christmases']
 
     #api call to advanced movie search api to get a series of movies based on the genre input
-    if flask.request.method == 'GET':
+    if method == 'POST':
         movieUrl = ''
         querystring = {}
         movieHeaders = {
@@ -209,7 +216,10 @@ def getMovie(genre):
             querystring = {'with_genres': id, 'page': str(randint(5))}
 
         response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 200-203, 207-208, 210-213, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
-        movieOptions = response.json()
+        movieOptionsRaw = response.json()
+        movieOptions = movieOptionsRaw['results']
+        print(movieOptions)
+        print(len(movieOptions))
 
         #selects random movie from the list of options returned from api, or selects the appropriate christmas movie if relevant
         if genre == 'christmas':
@@ -221,22 +231,10 @@ def getMovie(genre):
         #parses api return to find important information about movie
         movieTitle = movie['original_title']
         movieImage = movie['backdrop_path']
-
-        genreIDs = movie['genre_ids']
-        num = 0
-        movieGenres = ''
-
-        #search through dictionary to find each genre associated with chosen movie
-        for i in genreIDs:
-            for g in movieIDs:
-                if movieIDs[g] == i:
-                    movieGenres += genres[num], ", "
-                num += 1
-
         movieDescription = movie['overview']
 
         #return most important info about movie
-        return [movieTitle, movieImage, movieGenres, movieDescription]  
+        return [movieTitle, movieImage, genre, movieDescription]  
 
 @app.route('/static/weatherTest', methods = ['GET', 'POST'])
 def weatherTest():
