@@ -1,10 +1,12 @@
 #imports
-import requests, flask, flask_sqlalchemy, flask_login, numpy
+import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, flask_dance.contrib.google, logging
 from getpass import getuser
 from flask import Flask, Response, request, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf import FlaskForm
+from authlib.integrations.flask_client import OAuth
+from dotenv import load_dotenv
 from wtforms import StringField, PasswordField, SubmitField
 from numpy.random import randint, choice
 
@@ -13,22 +15,22 @@ from sqlalchemy.sql import func
 
 #GLOBAL VARIABLES
 genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller', 'christmas']
-oauthClientID = '277828949854-f8po6ag57v9od74sp727pato3nmd02r8.apps.googleusercontent.com'
-oauthClientSecret = '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'
-
-#CHECK LINES NOTED IN CITATION COMMENTS
 
 #init database directory
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 #create app
 app = Flask(__name__, template_folder='templates')
+app.config['SERVER_NAME'] = 'localhost:5000'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
 
 #init database
 db = SQLAlchemy(app)
+
+#init OAuth
+auth = OAuth(app)
 
 #init login manager
 #login_manager = LoginManager()
@@ -51,6 +53,34 @@ class User(flask_login.UserMixin, db.Model):
 #def load_user(username):
 #    return User.get(username)
 
+#routes to allow OAuth authorization using a Google account
+@app.route('/google')
+def google():
+    AUTH_CLIENT_ID = os.environ.get('AUTH_CLIENT_ID')
+    AUTH_CLIENT_SECRET = os.environ.get('AUTH_CLIENT_SECRET')
+
+    AUTH_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+
+    auth.register(
+        name='google'
+        client_id = AUTH_CLIENT_ID
+        client_secret = AUTH_CLIENT_SECRET
+        server_metadata_url = AUTH_URL
+        client_kwargs = {
+            'scope': 'openid email profile'
+        }
+    )
+
+    redirect = url_for('google_auth', _external = True)
+    return auth.google.authorize_redirect(redirect)
+
+@app.route('/google/auth')
+def google_auth():
+    accessToken = auth.google.authorize_access_token()
+    user = auth.google.parse_id_token(accessToken)
+    print(" Google User ", user)
+    return redirect('/')                                #code for lines 59-84 taken from https://www.geeksforgeeks.org/oauth-authentication-with-flask-connect-to-google-twitter-and-facebook/
+
 #route to add new user to database
 @app.route('/createUser/', methods=['GET', 'POST'])
 def createUser():
@@ -66,7 +96,7 @@ def createUser():
 
         return flask.redirect(url_for('moviegen'))
 
-    return render_template('createUser.html') #code for lines 19, 23-56 adapted from https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
+    return render_template('createUser.html') #code for lines 22, 87-101 adapted from https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -107,7 +137,7 @@ def getWeather():
                 
         querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
 
-        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 84-93, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
+        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 133-142, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
 
         weatherCondition = weatherResponseJ['current_observation']['condition']['text']
@@ -145,7 +175,7 @@ def getMonth():
 	        'X-RapidAPI-Host': 'world-clock.p.rapidapi.com'
             }
 
-        monthResponse = requests.request('GET', monthUrl, headers=monthHeaders) #code lines 124-131, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
+        monthResponse = requests.request('GET', monthUrl, headers=monthHeaders) #code lines 173-180, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
         monthResponseJ = monthResponse.json()
 
         month = monthResponseJ['currentDateTime'][5:7]
@@ -178,7 +208,7 @@ def getMovie(genre):
             movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
             querystring = {'with_genres': id, 'page': str(randint(5))}
 
-        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 151-154, 158-159, 161-164, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
+        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 200-203, 207-208, 210-213, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
         movieOptions = response.json()
 
         #selects random movie from the list of options returned from api, or selects the appropriate christmas movie if relevant
