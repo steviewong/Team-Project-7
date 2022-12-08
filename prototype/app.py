@@ -73,12 +73,8 @@ def hello():
     return render_template('./index.html', movie = movie)
 
 @app.route('/')
-def home():
-	return render_template('home.html')
-
-@app.route('/about')
-def about():
-    return '<h3>This is a Flask web application.</h3>'
+def main():
+    return render_template('moviegen.html')
 
 #route for if user selects weather option to generate movie
 @app.route('/static/getMovieForWeather', methods = ['GET', 'POST'])
@@ -174,8 +170,8 @@ def getWeather(method):
         weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 161-168, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
 
-        weatherCondition = weatherResponseJ['current_observation']['condition']['text']
-        temp = weatherResponseJ['current_observation']['condition']['temperature']
+    weatherCondition = weatherResponseJ['current_observation']['condition']['text']
+    temp = weatherResponseJ['current_observation']['condition']['temperature']
 
         #series of conditionals to determine appropriate genre based on a combination of the temp and weather condition
         if 'Sunny' in weatherCondition:
