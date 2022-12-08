@@ -3,7 +3,7 @@ import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, logging, o
 from getpass import getuser
 from flask import Flask, Response, request, render_template, redirect, url_for, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin
 from flask_wtf import FlaskForm
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
@@ -34,11 +34,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 #set up User class which will represent each dataset in the database
-class User(flask_login.UserMixin, db.Model):
-    username = db.Column(db.String(30), primary_key=True)
+class User(UserMixin, db.Model):
+    __tablename
+
     firstName = db.Column(db.String(30), nullable=True)
     lastName = db.Column(db.String(30), nullable=True)
-    email = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(50), primary_key=True)
     password = db.Column(db.String(20), nullable=False)
     timeCreated = db.Column(db.DateTime(timezone=True), server_default=func.now())
     moviesToWatch = db.Column(db.Text)
@@ -51,7 +52,7 @@ def load_user(username):
     return User.get(username)
 
 #route to add new user to database
-@app.route('/createUser/', methods=['GET', 'POST'])
+@app.route('/createUser', methods=['GET', 'POST'])
 def createUser():
     if flask.request.method == 'POST':
         username = flask.request.form['username']
@@ -67,14 +68,9 @@ def createUser():
 
     return render_template('createUser.html') #code for lines 22, 87-101 adapted from https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
 
-def hello():
-    movie = getPoster()
-    #return '<h1>movie</h1>'
-    return render_template('./index.html', movie = movie)
-
 @app.route('/')
 def main():
-    return render_template('moviegen.html')
+    return render_template('home.html')
 
 #route for if user selects weather option to generate movie
 @app.route('/static/getMovieForWeather', methods = ['GET', 'POST'])
