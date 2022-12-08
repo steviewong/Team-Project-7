@@ -14,27 +14,24 @@ from numpy.random import randint, choice
 import os, base64
 from sqlalchemy.sql import func
 
-#GLOBAL VARIABLES
-genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller', 'christmas']
+#GLOBAL VARIABLE
+genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller']
 
 #init database directory
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 #create app
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
 
-#init database
+#init databse
 db = SQLAlchemy(app)
 
-#init OAuth
-auth = OAuth(app)
-
 #init login manager
-#login_manager = LoginManager()
-#login_manager.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 #set up User class which will represent each dataset in the database
 class User(flask_login.UserMixin, db.Model):
@@ -49,37 +46,9 @@ class User(flask_login.UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-#@login_manager.user_loader
-#def load_user(username):
-#    return User.get(username)
-
-#routes to allow OAuth authorization using a Google account
-@app.route('/google')
-def google():
-    AUTH_CLIENT_ID = os.environ.get('AUTH_CLIENT_ID')
-    AUTH_CLIENT_SECRET = os.environ.get('AUTH_CLIENT_SECRET')
-
-    AUTH_URL = 'https://accounts.google.com/.well-known/openid-configuration'
-
-    auth.register(
-        name = 'google'
-        #client_id = AUTH_CLIENT_ID
-        #client_secret = AUTH_CLIENT_SECRET
-        #server_metadata_url = AUTH_URL
-        #client_kwargs = {
-            #'scope': 'openid email profile'
-        #}
-    )
-
-    redirect = url_for('google_auth', _external = True)
-    return auth.google.authorize_redirect(redirect)
-
-@app.route('/google/auth')
-def google_auth():
-    accessToken = auth.google.authorize_access_token()
-    user = auth.google.parse_id_token(accessToken)
-    print(" Google User ", user)
-    return redirect('/')                                #code for lines 59-84 taken from https://www.geeksforgeeks.org/oauth-authentication-with-flask-connect-to-google-twitter-and-facebook/
+@login_manager.user_loader
+def load_user(username):
+    return User.get(username)
 
 #route to add new user to database
 @app.route('/createUser/', methods=['GET', 'POST'])
@@ -98,166 +67,135 @@ def createUser():
 
     return render_template('createUser.html') #code for lines 22, 87-101 adapted from https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    return render_template('login.html')
+def hello():
+    movie = getPoster()
+    #return '<h1>movie</h1>'
+    return render_template('./index.html', movie = movie)
 
-#route for home page - prompts user to login
 @app.route('/')
-def main():
-    return render_template('moviegen.html')
+def home():
+	return render_template('home.html')
+
+@app.route('/about')
+def about():
+    return '<h3>This is a Flask web application.</h3>'
 
 #route for if user selects weather option to generate movie
-@app.route("/static/getMovieForWeather", methods = ['GET', 'POST'])
+@app.route('/static/getMovieForWeather', methods = ['GET', 'POST'])
 def getMovieForWeather(): #wrapper function to call both apis in order
     result = getWeather(flask.request.method)
-    print(result)
-    movie = getMovie(result, flask.request.method)
-    return render_template('weather.html', movie=movie)
+    genre = result[0]
+    movie = getMovieWithGenre(genre, flask.request.method)
+    return render_template('weather.html', movieTitle=movie[0], movieImg=movie[1], genre=genre, movieDescription=movie[2], weather=result[1])
 
-@app.route("/static/getMovieForFilter", methods = ['GET', 'POST'])
+#route for if user selects filter option to generate movie
+@app.route('/static/getMovieForFilter', methods = ['GET', 'POST'])
 def getMovieForFilter(): #wrapper function to call the movie api based on filter input
     filter = request.form.get('genre')
-    movie = getMovie(filter)
-    return movie
+    movie = getMovieWithGenre(filter, flask.request.method)
+    return render_template('filter.html', movieTitle=movie[0], movieImg=movie[1], genre=filter, movieDescription=movie[2])
 
+#route for if user chooses to search for a movie
+@app.route('/static/getMovieSearch', methods = ['GET', 'POST'])
+def getMovieForSearch():
+    movieID = getMovieID(request.form('movieTitle'), flask.request.method)
+    movie = getMovieWithID(movieID, flask.request.method)
+    return render_template('search.html', movieTitle=movie[0], movieImg=movie[1], movieDescription=movie[2])
+
+#function to access movie api with genre and return important info
+def getMovieWithGenre(genre, method):
+    if method == 'POST':
+        num = randint(0,99)
+
+        #api call to IMDB popular movies by genre api to get a random movie's details (title, image, description) given a genre
+        movieUrl = 'https://imdb8.p.rapidapi.com/title/v2/get-popular-movies-by-genre'
+        movieQuerystring = {'genre': genre, 'limit': '100'}
+        movieHeaders = {
+		    'X-RapidAPI-Key': '708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981',
+		    'X-RapidAPI-Host': 'imdb8.p.rapidapi.com'
+		    }
+
+        response = requests.request('GET', movieUrl, headers=movieHeaders, params=movieQuerystring) #code lines 110-117, with variable names edited, taken from RapidAPI listing for IMDB at https://rapidapi.com/apidojo/api/imdb8/
+        movieReturn = response.json()[num]
+        movieID = movieReturn[7:-1]
+        
+        info = getMovieWithID(movieID, method)
+
+        return info
+
+#function to access movie api with id and return important info
+def getMovieWithID(id, method):
+    if method == 'POST':
+
+        #api call to IMDB overview/details api to get movie details (title, image, description) given an id
+        movieUrl = 'https://imdb8.p.rapidapi.com/title/get-overview-details'
+        movieQuerystring = {'tconst': id, 'currentCountry': 'US'}
+        movieHeaders = {
+            'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+            'X-RapidAPI-Host': 'imdb8.p.rapidapi.com'
+            }
+
+        response = requests.request('GET', movieUrl, headers=movieHeaders, params=movieQuerystring) #code lines 128-135, with variable names edited, taken from RapidAPI listing for IMDB at https://rapidapi.com/apidojo/api/imdb8/
+        responseJ = response.json()
+        movieInfo = [responseJ['title'], responseJ['title']['image']['url'], responseJ['plotOutline']['text']]
+
+        return movieInfo
+
+#function to access movie api with title and return id, which can be used to find more information
+def getMovieID(movieTitle, method):
+    if method == 'POST':
+
+        #api call to IMDB auto-complete api to get movie ID given a title
+        idUrl = 'https://imdb8.p.rapidapi.com/auto-complete'
+        querystring = {'q': movieTitle}
+        idHeaders = {
+            'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+            'X-RapidAPI-Host': 'imdb8.p.rapidapi.com'
+        }
+
+        idResponse = requests.request('GET', idUrl, headers=idHeaders, params=querystring) #code lines 144-151, with variable names edited, taken from RapidAPI listing for IMDB at https://rapidapi.com/apidojo/api/imdb8/
+        idResponseJ = idResponse.json()
+
+        return idResponseJ['d']['0']['i']['id']
+
+#function to access weather api and return important info
 def getWeather(method):
-    #calls function to obtain current month
-    month = getMonth()
+    if method == 'POST':
+        genre = ''
 
-    genre = ''
-
-    #api call to Yahoo weather api to get weather description and current temperature
-    if method == 'POST':	
+        #api call to Yahoo weather api to get weather description and current temperature
         weatherUrl = 'https://yahoo-weather5.p.rapidapi.com/weather'
-
         weatherHeaders = {
-                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
-                'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
-                }
-                
+            'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
+            'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
+            }
         querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
 
-        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 133-142, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
+        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 161-168, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
 
         weatherCondition = weatherResponseJ['current_observation']['condition']['text']
         temp = weatherResponseJ['current_observation']['condition']['temperature']
 
-        #series of conditionals to determine appropriate genre based on a combination of the month, temp, and weather condition
-        if month == '12':
-            if 'Snow' in weatherCondition or temp < 32:
-                genre = genres[10]
-        elif 'Sunny' in weatherCondition:
-            possGenSunny = [0, 1, 2, 3, 6]
-            genre = genres[choice(possGenSunny)]
+        #series of conditionals to determine appropriate genre based on a combination of the temp and weather condition
+        if 'Sunny' in weatherCondition:
+            genre = genres[choice(0, 1, 2, 3, 6)]
         elif 'Rain' or 'Showers' in weatherCondition:
             if temp > 60:
-                possGenRainHT = [1, 2, 3, 5, 7]
-                genre = genres[choice(possGenRainHT)]
+                genre = genres[choice(1, 2, 3, 5, 7)]
             else:
-                possGenRainLT = [2, 4, 5, 7, 8]
-                genre = genres[choice(possGenRainLT)] 
+                genre = genres[choice(2, 4, 5, 7, 8)] 
         elif 'Snow' in weatherCondition:
-            possGenSnow = [3, 5, 6]
-            genre = genres[choice(possGenSnow)]
+            genre = genres[choice(3, 5, 6)]
         elif 'Cloudy' in weatherCondition:
-            possGenCloudy = [0, 2, 5, 7, 8]
-            genre = genres[choice(possGenCloudy)]
+            genre = genres[choice(0, 2, 5, 7, 8)]
         elif 'Storm' in weatherCondition:
-            possGenStorm = [0, 2, 4, 5, 8]
-            genre = genres[choice(possGenStorm)]
+            genre = genres[choice(0, 2, 4, 5, 8)]
         else:
-            genre = genres[randint(0, 10)]
-
-        return genre
-
-def getMonth():
-    #api call to world clock api to get current month
-    if flask.request.method == 'GET':	
-        monthUrl = 'https://world-clock.p.rapidapi.com/json/est/now'
-
-        monthHeaders = {
-            'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
-	        'X-RapidAPI-Host': 'world-clock.p.rapidapi.com'
-            }
-
-        monthResponse = requests.request('GET', monthUrl, headers=monthHeaders) #code lines 173-180, with variable names edited, taken from RapidAPI listing for World Clock at https://rapidapi.com/theapiguy/api/world-clock/
-        monthResponseJ = monthResponse.json()
-
-        month = monthResponseJ['currentDateTime'][5:7]
-
-        return month
-
-def getMovie(genre, method):
-    #dictionary to connect movie genres to their associated id number in the api used
-    movieIDs = {'action': 28, 'comedy': 35, 'drama': 18, 'fantasy': 14, 'horror': 27, 'mystery': 9648, 'romance': 10749, 'science fiction': 878, 'thriller': 53}
-    id = str(movieIDs[genre])
-
-    #list of holiday movies
-    xmasOptions = ['the grinch', 'home alone', 'love actually', 'elf', 'miracle on 34th street', 'klaus', 'the nightmare before christmas', 'die hard',\
-        'the polar express', 'four christmases']
-
-    #api call to advanced movie search api to get a series of movies based on the genre input
-    if method == 'POST':
-        movieUrl = ''
-        querystring = {}
-        movieHeaders = {
-            'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
-	        'X-RapidAPI-Host': 'advanced-movie-search.p.rapidapi.com'
-        }
-
-        if genre == 'christmas':
-            title = xmasOptions[str(randint(10))]
-            movieUrl = 'https://advanced-movie-search.p.rapidapi.com/search/movie'
-            querystring = {'query': title, 'page': '1'}
-        else:
-            movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
-            querystring = {'with_genres': id, 'page': str(randint(5))}
-
-        response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 200-203, 207-208, 210-213, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
-        movieOptionsRaw = response.json()
-        movieOptions = movieOptionsRaw['results']
-        print(movieOptions)
-        print(len(movieOptions))
-
-        #selects random movie from the list of options returned from api, or selects the appropriate christmas movie if relevant
-        if genre == 'christmas':
-            movie = movieOptions[0]
-        else:
-            movieNum = randint(len(movieOptions))
-            movie = movieOptions[movieNum]
-
-        #parses api return to find important information about movie
-        movieTitle = movie['original_title']
-        movieImage = movie['backdrop_path']
-        movieDescription = movie['overview']
-
-        #return most important info about movie
-        return [movieTitle, movieImage, genre, movieDescription]  
-
-@app.route('/static/weatherTest', methods = ['GET', 'POST'])
-def weatherTest():
-    if flask.request.method == 'POST':	
-        url = 'https://yahoo-weather5.p.rapidapi.com/weather'
-
-        headers = {
-                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
-                'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
-                }
-                
-        querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
-
-        response = requests.request("GET", url, headers=headers, params=querystring) #code lines 39-48, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
-        responseJ = response.json()
-
-        weatherCond = responseJ['current_observation']['condition']['text']
-
-        return render_template('weatherBoston.html', weatherCond=weatherCond)
-
+            genre = genres[randint(0, 9)]
+            
+        return [genre, weatherCondition]
 
 if __name__ == '__main__':
-    app.run(debug=True,
-            host='0.0.0.0',
-            port=8000,
-            threaded=True)    
+    app.run(debug=True)
+
