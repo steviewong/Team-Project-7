@@ -1,6 +1,5 @@
-As a logged-in user, I should be taken to the main page where I can either be recommended a random movie based on the weather or customer filters. 
-If I click on the "Custom filters" button, I will be taken to the appropriate page in which I am recommended a movie based on my filters, not the weather.
-These custom filters include: rating, runtime and genre. I should then be able to type in the specific runtime, which if it is not in an accepted format will give 
-an error message. Runtimes +/- 20 minutes of the specified runtime will be accepted. Additionally, I can specify the genre through a dropdown menu containing all 
-accepted genres. I can also specify the desired rating through a dropdown menu with the following ratings: <1, 1-1.5, 1.5-2, 2-2.5, 2.5-3, 3-3.5, 3.5-4, 4-4.5, 4.5+. 
-Once I am satsified with my inputs, I will click the search button and a random movie that meets my constraints will be displayed. 
+As a logged-in user, I should be taken to the main page where I can either be recommended a random movie based on the weather or based on a specified genre. 
+If I click on the "Filter by genre" button, I will be taken to the appropriate page in which I am recommended a movie based on the genre specified, not the weather.
+I can specify the genre through a dropdown menu containing all accepted genres. The genres include: action, comedy, drama, fantasy, horror, mystery, romance,
+science fiction, thriller, and Christmas. Once I choose a genre and hit search, I will receive a recommendation. This will include the movie poster, title, and 
+description
