@@ -20,9 +20,9 @@ def hello():
 def about():
     return '<h3>This is a Flask web application.</h3>'
 
-if __name__ == '__main__':
-    app.debug = True
-    app.run()
+# if __name__ == '__main__':
+#     app.debug = True
+#     app.run()
 
 @app.route('/')
 def start():
@@ -33,7 +33,7 @@ def start():
 def getposter():
 
 	if request.method == ['GET']:
-		return render_template("./index.html")
+		return render_template("./filters.html")
 	else:
 		url = "https://imdb8.p.rapidapi.com/auto-complete"
 
@@ -44,7 +44,7 @@ def getposter():
 #movie = "the shawshank redemption"
 
 
-		x =movie.replace(' ','%20')
+		x = movie.replace(' ','%20')
 
 		querystring = {"q":movie}
 
@@ -68,7 +68,6 @@ def getposter():
 
 		return render_template("./index.html", movie = img)
 
-
 def posty(movie):
    
 	url = "https://imdb8.p.rapidapi.com/auto-complete"
@@ -87,7 +86,6 @@ def posty(movie):
 	
 	return responsej
 
-    
    
 
 
@@ -117,24 +115,30 @@ def getmovie():
 
         response = requests.request("GET", url, headers=headers, params=querystring)
         moviename = response.json()['title']
+        movieid = response.json()['id']
         print(response.json()['title'])
         
 
         poster = posty(movie1)
 
-        return render_template("movierec.html", name = moviename)# movie = poster, weather = all[1])
+        return render_template("filters.html", name = moviename, link = "https://imdb.com" + movieid)# movie = poster, weather = all[1])
    
 
 	#route for if user selects weather option to generate movie
+
+
+
+
 
 def getMovieForWeather(): #wrapper function to call both apis in order
     result = getWeather()
     movie = getMovie(result)
     return render_template('weather.html', movie=movie)
 
-
+@app.route('/getMovieForFilter')
 def getMovieForFilter(): #wrapper function to call the movie api based on filter input
-    filter = request.form.get('genre')
+    filter = request.args.get('genre')
+    print(filter)
     movie = getMovie(filter)
     return movie
 
@@ -248,7 +252,7 @@ def getMovie(genre):
             querystring = {'query': title, 'page': '1'}
         else:
             movieUrl = 'https://advanced-movie-search.p.rapidapi.com/discover/movie'
-            querystring = {'with_genres': id, 'page': str(random.randint(5))}
+            querystring = {'with_genres': id, 'page': str(random.randint(1,5))}
 
         response = requests.request('GET', movieUrl, headers=movieHeaders, params=querystring) #code lines 151-154, 158-159, 161-164, with variable names edited, taken from RapidAPI listing for Advanced Movie Search at https://rapidapi.com/jakash1997/api/advanced-movie-search
         movieOptions = response.json()
@@ -257,28 +261,37 @@ def getMovie(genre):
         if genre == 'christmas':
             movie = movieOptions[0]
         else:
-            movieNum = random.randint(len(movieOptions))
-            movie = movieOptions[movieNum]
+            print(movieOptions)
+            movieNum = random.randint(0,len(movieOptions))
+            movie = movieOptions['results'][movieNum]
 
         #parses api return to find important information about movie
         movieTitle = movie['original_title']
         movieImage = movie['backdrop_path']
+        id = movie['id']
 
         genreIDs = movie['genre_ids']
         num = 0
         movieGenres = ''
 
         #search through dictionary to find each genre associated with chosen movie
-        for i in genreIDs:
-            for g in movieIDs:
-                if movieIDs[g] == i:
-                    movieGenres += genres[num], ", "
-                num += 1
+        # for i in genreIDs:
+        #     for g in movieIDs:
+        #         if movieIDs[g] == i:
+        #             movieGenres += genres[num], ", "
+        #         num += 1
 
         movieDescription = movie['overview']
+        movieDetails = {
+            'title': movieTitle,
+            'image': movieImage,
+            'genres': genreIDs,
+            'description': movieDescription,
+            'id': id
+        }
 
         #return most important info about movie
-        return [movieTitle, movieImage, movieGenres, movieDescription]  
+        return movieDetails  
 
 #@app.route('/weatherTest', methods = ['GET', 'POST'])
 def weatherTest():
@@ -300,7 +313,9 @@ def weatherTest():
 
         return render_template('weatherBoston.html', weatherCond=weatherCond)
 
-
+if __name__ == '__main__':
+    app.debug = True
+    app.run()
 
 recommend()
 print()
