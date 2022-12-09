@@ -273,8 +273,8 @@ def getWeather():
         weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 84-93, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
 
-        weatherCondition = weatherResponseJ['current_observation']['condition']['text']
-        temp = weatherResponseJ['current_observation']['condition']['temperature']
+        weatherCondition = weatherResponseJ['current_weather']['description']
+        temp = weatherResponseJ['current_weather']['temperature']
 
         #series of conditionals to determine appropriate genre based on a combination of the month, temp, and weather condition
         if month == '12':
