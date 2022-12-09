@@ -19,13 +19,11 @@ from sqlalchemy.sql import func
 
 #create app
 app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
 
 #init databse
-engine = flask.sqlalchemy.create_engine('sqlite:///database.db')
-connect = engine.connect()
-users = flask.sqlalchemy.Table('users')
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 #init login manager
@@ -37,7 +35,7 @@ login_manager.login_view = 'login.html'
 genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller', 'christmas']
 user = None
 
-class User(UserMixin, db.Model):
+class User(UserMixin, db.Model):     #code for lines 25-27 taken from, and User class adapted from, https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
     email = db.Column(db.String(50), primary_key=True)
     moviesToWatch = db.Column(db.Text)
 
@@ -54,7 +52,7 @@ class User(UserMixin, db.Model):
         return self.moviesToWatch
     
     def addMovie(self, movieTitle):
-        self.moviesToWatch += movieTitle + '\n'
+        self.moviesToWatch += movieTitle + '\n' 
 
 
 def hello():
@@ -94,11 +92,9 @@ def seeWatchList():
     return list
 
 def posty(movie):
-   
 
     url = "https://imdb8.p.rapidapi.com/auto-complete"
 
-		
     x =movie.replace(' ','%20')
 
     querystring = {"q":movie}
@@ -108,7 +104,7 @@ def posty(movie):
 		"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
 	}
 
-    response = requests.request("GET",url, headers = headers, params=querystring)
+    response = requests.request("GET",url, headers = headers, params=querystring)   #code for lines 96-107 taken from IMDB api at https://rapidapi.com/apidojo/api/imdb8/
 
 	
 
@@ -123,7 +119,6 @@ def posty(movie):
 
 @app.route('/search',methods = ['GET','POST'])
 def getposter():
-   
 
     url = "https://imdb8.p.rapidapi.com/auto-complete"
     movie = 0 
@@ -138,9 +133,7 @@ def getposter():
 		"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
 	}
 
-    response = requests.request("GET",url, headers = headers, params=querystring)
-
-	
+    response = requests.request("GET",url, headers = headers, params=querystring)  #code for lines 123-136 taken from IMDB api at https://rapidapi.com/apidojo/api/imdb8/
 
     responsej = response.json() 
     if responsej['d'][0]['i']['imageUrl'] == None:
@@ -174,7 +167,7 @@ def getmovie():
 	"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
         }
 
-        response = requests.request("GET", url, headers=headers, params=querystring)
+        response = requests.request("GET", url, headers=headers, params=querystring)    #code for lines 162-170 taken from IMDB api at https://rapidapi.com/apidojo/api/imdb8/
         moviename = response.json()['title']
         print(response.json()['title'])
         
@@ -198,8 +191,6 @@ def getMovieForFilter(): #wrapper function to call the movie api based on filter
     return movie
 
 def getWeather():
-    #calls function to obtain current month
-        month = getMonth()
 
         genre = ''
 
@@ -212,9 +203,7 @@ def getWeather():
 	"X-RapidAPI-Host": "simple-weather2.p.rapidapi.com"
         }
 
-        response = requests.request("GET", url, headers=headers, params=querystring)
-
- #code lines 84-93, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
+        response = requests.request("GET", url, headers=headers, params=querystring) #code lines 197-206, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = response.json()
 
         weatherCondition = weatherResponseJ['current_weather']['description']
@@ -260,9 +249,7 @@ def recommend():
 				"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
 					}
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
-
-    
+    response = requests.request("GET", url, headers=headers, params=querystring)    #code for lines 243-252 taken from IMDB api at https://rapidapi.com/apidojo/api/imdb8/
 
     option = response.json()[num]
 
@@ -279,10 +266,10 @@ def recommendy(genre):
 
     headers = {
 			"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
-				"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
-					}
+			"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
+			}
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
+    response = requests.request("GET", url, headers=headers, params=querystring)   #code for lines 263-272 taken from IMDB api at https://rapidapi.com/apidojo/api/imdb8/
 
     
 
@@ -315,7 +302,7 @@ def look_by_genre():
 	"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
         }
 
-        response = requests.request("GET", url, headers=headers, params=querystring)
+        response = requests.request("GET", url, headers=headers, params=querystring)   #code for lines 297-305 taken from IMDB api at https://rapidapi.com/apidojo/api/imdb8/
         moviename = response.json()['title']
         print(response.json()['title'])
         
@@ -358,7 +345,7 @@ def authorize():
     user_info = resp.json()
     # # do something with the token and profile
     session['email'] = user_info['email']
-    return redirect('/logged')
+    return redirect('/logged')                #code to implement OAuth from lines 317-348 adapted from Flask (Python) - Google oAuth 2.0 (Authlib) YouTube video by Vuka at https://www.youtube.com/watch?v=BfYsdNaHrps
 
 @app.route('/logout', methods = ['GET','POST'])
 def logout():
