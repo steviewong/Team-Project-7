@@ -1,9 +1,9 @@
 #imports
-import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, logging, oauthlib, flask_bcrypt
+import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, logging, oauthlib, flask_bcrypt, form
 from getpass import getuser
 from flask import Flask, Response, request, render_template, redirect, url_for, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, LoginForm, is_safe_url
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin #LoginForm, is_safe_url
 from flask_wtf import FlaskForm
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
@@ -68,19 +68,19 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/static/home')
 def main():
-    return render_template('home.html')
+    return render_template('movieGen.html')
 
-@app.route('/login', methods = ['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.get(form.email.data)
-        if user:
-            if flask.bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user, remember=True)
-                return render_template('moviegen.html')
-            flask.flash('Incorrect password')
-    return render_template('login.html', form=form)
+#@app.route('/login', methods = ['GET', 'POST'])
+#def login():
+#    form = LoginForm()
+#    if form.validate_on_submit():
+#        user = User.query.get(form.email.data)
+#        if user:
+#            if flask.bcrypt.check_password_hash(user.password, form.password.data):
+#                login_user(user, remember=True)
+#                return render_template('moviegen.html')
+#            flask.flash('Incorrect password')
+#    return render_template('login.html', form=form)
 
 @app.route('/logout', methods = ['GET', 'POST'])
 @login_required
@@ -135,7 +135,7 @@ def getMovieForWeather(): #wrapper function to call both apis in order
 def getMovieForFilter(): #wrapper function to call the movie api based on filter input
     filter = request.form.get('genre')
     movie = getMovieWithGenre(filter, flask.request.method)
-    return render_template('filter.html', movieTitle=movie[0], movieImg=movie[1], genre=filter, movieDescription=movie[2])
+    return render_template('filter.html', movieTitle=movie[0], movieImg=movie[1], movieDescription=movie[2])
 
 #route for if user chooses to search for a movie
 @app.route('/static/getMovieSearch', methods = ['GET', 'POST'])
@@ -206,33 +206,40 @@ def getWeather(method):
         genre = ''
 
         #api call to Yahoo weather api to get weather description and current temperature
-        weatherUrl = 'https://yahoo-weather5.p.rapidapi.com/weather'
+        weatherUrl = 'https://simple-weather2.p.rapidapi.com/weather'
         weatherHeaders = {
             'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
-            'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
+            'X-RapidAPI-Host': 'simple-weather2.p.rapidapi.com'
             }
-        querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
+        querystring = {'location': 'Boston, USA'}
 
         weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 161-168, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
+        print(weatherResponseJ)
 
-        weatherCondition = weatherResponseJ['current_observation']['condition']['text']
-        temp = weatherResponseJ['current_observation']['condition']['temperature']
+        weatherCondition = weatherResponseJ['current_weather']['description']
+        temp = weatherResponseJ['current_weather']['temperature']
 
         #series of conditionals to determine appropriate genre based on a combination of the temp and weather condition
         if 'Sunny' in weatherCondition:
-            genre = genres[choice(0, 1, 2, 3, 6)]
+            possGenSunny = [0, 1, 2, 3, 6]
+            genre = genres[choice(possGenSunny)]
         elif 'Rain' or 'Showers' in weatherCondition:
             if temp > 60:
-                genre = genres[choice(1, 2, 3, 5, 7)]
+                possGenRainHT = [1, 2, 3, 5, 7]
+                genre = genres[choice(possGenRainHT)]
             else:
-                genre = genres[choice(2, 4, 5, 7, 8)] 
+                possGenRainLT = [2, 4, 5, 7, 8]
+                genre = genres[choice(possGenRainLT)] 
         elif 'Snow' in weatherCondition:
-            genre = genres[choice(3, 5, 6)]
+            possGenSnow = [3, 5, 6]
+            genre = genres[choice(possGenSnow)]
         elif 'Cloudy' in weatherCondition:
-            genre = genres[choice(0, 2, 5, 7, 8)]
+            possGenCloudy = [0, 2, 5, 7, 8]
+            genre = genres[choice(possGenCloudy)]
         elif 'Storm' in weatherCondition:
-            genre = genres[choice(0, 2, 4, 5, 8)]
+            possGenStorm = [0, 2, 4, 5, 8]
+            genre = genres[choice(possGenStorm)]
         else:
             genre = genres[randint(0, 9)]
             
