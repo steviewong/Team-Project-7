@@ -12,6 +12,13 @@
     <h1 class= “header-text”> Movie Forecast </h1>
     <center><h3>Don't know what to watch? This application can help you choose a movie based on the weather or any other specifications you have!</h3></center>
     <center>
+     <form id="search-bar" action="/search">
+        <input type="search" id="query" name="q"
+         placeholder="Search..."
+         aria-label="Search through site content">
+        <button>Search</button>
+      </form>
+      <br>
       <button class = "buttons"><a href='/getMovieForWeather'>Weather</a></button>
       <button class = "buttons"><a href='/filter'>Filter</a></button>
     </center>
@@ -20,12 +27,6 @@
       <img src="http://png-2.findicons.com/files/icons/573/must_have/48/mail.png">
     </a>
     </center>
-    <form id="search-bar" action="/search">
-      <input type="search" id="query" name="q"
-       placeholder="Search..."
-       aria-label="Search through site content">
-        <button>Search</button>
-    </form>
   </div>
 </body>
 </html>
