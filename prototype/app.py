@@ -38,10 +38,7 @@ login_manager.login_view = 'login.html'
 class User(UserMixin, db.Model):
     __tablename__ = 'Accounts'
 
-    firstName = db.Column(db.String(30), nullable=True)
-    lastName = db.Column(db.String(30), nullable=True)
     email = db.Column(db.String(50), primary_key=True)
-    password = db.Column(db.String(20), nullable=False)
     moviesToWatch = db.Column(db.Text)
 
     def __repr__(self):
@@ -59,7 +56,6 @@ class User(UserMixin, db.Model):
     def addMovie(self, movieTitle):
         self.moviesToWatch += movieTitle + '\n'
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
@@ -68,45 +64,21 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/static/home')
 def main():
-    return render_template('movieGen.html')
+    return render_template('moviegen.html')
 
-#@app.route('/login', methods = ['GET', 'POST'])
-#def login():
-#    form = LoginForm()
-#    if form.validate_on_submit():
-#        user = User.query.get(form.email.data)
-#        if user:
-#            if flask.bcrypt.check_password_hash(user.password, form.password.data):
-#                login_user(user, remember=True)
-#                return render_template('moviegen.html')
-#            flask.flash('Incorrect password')
-#    return render_template('login.html', form=form)
-
-@app.route('/logout', methods = ['GET', 'POST'])
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('app.home'))
-
-@app.route('/toWatch')
-@login_required
+@app.route('/static/toWatch')
 def toWatch(user_id):
+    current_user.addMovie('the matrix')
     movies = User.getMovies()
     return render_template('watchList.html', movies=movies)
 
-@app.route('/static/moviegen')
-@login_required
-def afterLogin():
-    return render_template('moviegen.html')
-
 @app.route('/editWatchlist')
-@login_required
 def editWatchlist():
     movie = request.form.get('movieTitle')
     current_user.addMovie(movie)
 
 #route to add new user to database
-@app.route('/createUser', methods=['GET', 'POST'])
+#@app.route('/createUser', methods=['GET', 'POST'])
 def createUser():
     if flask.request.method == 'POST':
         username = flask.request.form['username']
@@ -179,8 +151,7 @@ def getMovieWithID(id, method):
 
         response = requests.request('GET', movieUrl, headers=movieHeaders, params=movieQuerystring) #code lines 128-135, with variable names edited, taken from RapidAPI listing for IMDB at https://rapidapi.com/apidojo/api/imdb8/
         responseJ = response.json()
-        movieInfo = [responseJ['title'], responseJ['title']['image']['url'], responseJ['plotOutline']['text']]
-
+        movieInfo = [responseJ['title']['title'], responseJ['title']['image']['url'], responseJ['plotOutline']['text']]
         return movieInfo
 
 #function to access movie api with title and return id, which can be used to find more information
@@ -215,13 +186,12 @@ def getWeather(method):
 
         weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 161-168, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
         weatherResponseJ = weatherResponse.json()
-        print(weatherResponseJ)
 
         weatherCondition = weatherResponseJ['current_weather']['description']
         temp = weatherResponseJ['current_weather']['temperature']
 
         #series of conditionals to determine appropriate genre based on a combination of the temp and weather condition
-        if 'Sunny' in weatherCondition:
+        if 'Sunny' or 'Clear' in weatherCondition:
             possGenSunny = [0, 1, 2, 3, 6]
             genre = genres[choice(possGenSunny)]
         elif 'Rain' or 'Showers' in weatherCondition:
