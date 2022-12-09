@@ -29,8 +29,9 @@ if __name__ == '__main__':
 
 @app.route('/')
 def start():
-        
-	    return render_template("./index.html")
+    mail = dict(session).get('email',None)
+    return render_template("./index.html", email =mail)
+
 
 @app.route('/logged')
 def started():
@@ -89,10 +90,11 @@ def getposter():
 	
 
     responsej = response.json() 
-    
+    if responsej['d'][0]['i']['imageUrl'] == None:
+        return render_template('index.html')
     img = responsej['d'][0]['i']['imageUrl']
     
-    return render_template('index.html',movie = img)   
+    return render_template('/index.html',movie = img)   
     
 
     
@@ -130,7 +132,7 @@ def getmovie():
         print(response.json())
         poster = posty(movie1)
 
-        return render_template("movierec.html", name = moviename, movie = poster, weather = all[1])
+        return render_template("weather.html", name = moviename, movie = poster, weather = all[1])
    
 
 	#route for if user selects weather option to generate movie
@@ -152,28 +154,30 @@ def getWeather():
 
         genre = ''
 
-    #api call to Yahoo weather api to get weather description and current temperature
     
-        weatherUrl = 'https://yahoo-weather5.p.rapidapi.com/weather'
 
-        weatherHeaders = {
-                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
-                'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
-                }
-                
-        querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
+        url = "https://simple-weather2.p.rapidapi.com/weather"
 
-        weatherResponse = requests.request('GET', weatherUrl, headers=weatherHeaders, params=querystring) #code lines 84-93, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
-        weatherResponseJ = weatherResponse.json()
+        querystring = {"location":"Paris,France"}
 
-        weatherCondition = weatherResponseJ['current_observation']['condition']['text']
-        temp = weatherResponseJ['current_observation']['condition']['temperature']
+        headers = {
+	"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
+	"X-RapidAPI-Host": "simple-weather2.p.rapidapi.com"
+        }
+
+        response = requests.request("GET", url, headers=headers, params=querystring)
+
+ #code lines 84-93, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
+        weatherResponseJ = response.json()
+
+        weatherCondition = weatherResponseJ['current_weather']['description']
+        temp = weatherResponseJ['current_weather']['temperature']
 
         #series of conditionals to determine appropriate genre based on a combination of the month, temp, and weather condition
         if month == '12':
             if 'Snow' in weatherCondition or temp < 32:
                 genre = genres[10]
-        elif 'Sunny' in weatherCondition:
+        elif 'Sunny' or 'Clear' in weatherCondition:
             genre = genres[random.choice(0, 1, 2, 3, 6)]
         elif 'Rain' or 'Showers' in weatherCondition:
             if temp > 60:
@@ -214,6 +218,28 @@ def recommend():
 
     print(option)
     return [option,all[1]]
+
+def recommendy(genre):
+    num = random.randint(0,99)
+    
+
+    url = "https://imdb8.p.rapidapi.com/title/v2/get-popular-movies-by-genre"
+
+    querystring = {"genre":genre,"limit":"100"}
+
+    headers = {
+			"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
+				"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
+					}
+
+    response = requests.request("GET", url, headers=headers, params=querystring)
+
+    
+
+    option = response.json()[num]
+
+    print(option)
+    return option
 
 def getMonth():
     #api call to world clock api to get current month
@@ -308,23 +334,40 @@ def weatherTest():
 
         return render_template('weatherBoston.html', weatherCond=weatherCond)
 
-
+@app.route('/filter',methods = ['GET','POST'])
 def look_by_genre():
 
-    genre = request.form['genre']
 
-    url = "https://imdb8.p.rapidapi.com/title/v2/get-popular-movies-by-genre"
+    
+        genre = request.form['genre']
 
-    querystring = {"genre":genre,"limit":"100"}
+        movie = recommendy(genre)
+        
 
-    headers = {
-			"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
-				"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
-					}
+        movie1 = movie[7:-1]
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
+        print(movie1)
 
-    return response.json()
+
+	
+        url = "https://imdb8.p.rapidapi.com/title/get-base"
+        querystring = {"tconst":movie1}
+
+        headers = {
+	"X-RapidAPI-Key": "708e98d42bmsh2404d0ed0519532p16b192jsn9727845ce981",
+	"X-RapidAPI-Host": "imdb8.p.rapidapi.com"
+        }
+
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        moviename = response.json()['title']
+        print(response.json()['title'])
+        
+        print(response.json())
+        poster = posty(movie1)
+
+        return render_template("weather.html", name = moviename, movie = poster, weather = '--')
+
+    
 
 
 oauth = OAuth(app)
@@ -358,4 +401,11 @@ def authorize():
     user_info = resp.json()
     # # do something with the token and profile
     session['email'] = user_info['email']
-    return redirect('/logged')
+    return redirect('/')
+
+@app.route('/logout', methods = ['GET','POST'])
+def logout():
+    for key in list(session.keys()):
+        session.pop(key)
+    return redirect('/')
+
