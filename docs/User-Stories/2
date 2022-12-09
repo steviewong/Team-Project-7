@@ -1,7 +1,11 @@
 As a logged-in user, I want to receive a "no effort" random movie recommendation based on the weather. From the main page, I will click on "Weather,"
 at which point the website should automatically give a movie recommendation based on the weather. If for some reason a movie is not displayed, I can click the home
-button to return to the home page without logging out of the website. The weather determines which genre of movie will be displayed. 
-For example, if it is rainy, a random movie in the drama genre may be selected. The website will display the movie poster, movie name, genre, and year. 
-I can then filter this movie by placing it in a folder or designating it as "Watched" (see user story 4). Additionally, the page also displays the key weather facts. 
-For example, "It is 48 degrees and cloudy in Boston, MA, so I recommend dramas." If I am not satisified with my specific recommendation, I can click the "Recommend another
-movie" button to receive another recommendation.
+button to return to the home page without logging out of the website. The website will display the movie poster, movie name, genre, and year. 
+The page also displays the key weather facts that determined the movie such as "Cloudy." If I am not satisified with my specific recommendation, I can click the 
+"Weather" button again to receive another recommendation. If the "Sunny" appears in the weather condition, a movie in one of the following genres will be recommended:
+action, comedy, drama, fantasy, and romance. If "Rain" appears in the weather condition AND the temperature is warmer than 60 degrees, a movie in one of the following 
+genres will be recommended: comedy, drama, fantasy, mystery, and science fiction. If "Rain" appears in the weather condition AND the temperature is colder than 60
+degrees, a movie in one of the following genres will be recommended: drama, horror, mystery, science fiction, and thriller. If "Snow" appears in the weather condition, 
+a movie in one of the following genres will be recommended: fantasy, mystery, and romance. If "Cloudy" appears in the weather condition, a movie in one of the following
+genres will be recommended: action, drama, mystery, science fiction, and thriller. If "Storm" appears in the weather condition, a movie from one of the following genres 
+will be recommended: action, drama, horror, mystery, and thriller. If none of those conditions are met, a movie from a random genre will be displayed.
