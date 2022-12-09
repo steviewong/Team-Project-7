@@ -10,6 +10,10 @@
   <h1>Here is our recommendation:</h1>
   </center>
   <form id = "back" method="back" action="/getmovie">
+    {% if movie %}
+    <img src = {{movie}} width="400" height = "500">
+    
+    {% endif %}
     <input type="submit" value="Back" />
    </form>
 </body>
