@@ -17,16 +17,15 @@ from authlib.integrations.flask_client import OAuth
 from os import environ as env
 from sqlalchemy.sql import func
 
-#init database directory
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 #create app
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
 
 #init databse
+engine = flask.sqlalchemy.create_engine('sqlite:///database.db')
+connect = engine.connect()
+users = flask.sqlalchemy.Table('users')
 db = SQLAlchemy(app)
 
 #init login manager
@@ -39,7 +38,6 @@ genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance'
 user = None
 
 class User(UserMixin, db.Model):
-
     email = db.Column(db.String(50), primary_key=True)
     moviesToWatch = db.Column(db.Text)
 
@@ -71,20 +69,29 @@ def about():
 
 @app.route('/')
 def start():
-    mail = dict(session).get('email',None)
-    user = User(email = mail, moviesToWatch = '')
-    if not User.get(mail):
-        User.create(mail)
-    return render_template("./index.html", email =mail)
+    #mail = dict(session).get('email',None)
+    return render_template("./home.html")
 
 
 @app.route('/logged')
 def started():
 
     email = dict(session).get('email',None)
+    user = User(email = email, moviesToWatch = '')
+    db.session.add(user)
+    db.commit()
+    return render_template("./moviegen.html", email = email)
 
-    return render_template("./index.html", email = email)
+@app.route('/addWatchList')
+def addWatchList():
+    movie = flask.form.request.get('movieTitle')
+    user.moviesToWatch += movie
+    db.session.commit()
 
+@app.route('/seeWatchList')
+def seeWatchList():
+    list = user.getMovies()
+    return list
 
 def posty(movie):
    
@@ -140,7 +147,8 @@ def getposter():
         return render_template('index.html')
     img = responsej['d'][0]['i']['imageUrl']
     
-    return render_template('/index.html',movie = img)   
+    return render_template('/searchresult.html',movie = img)   
+
 
 @app.route('/getmovie',methods= ['GET','POST'])
 def getmovie():
@@ -180,7 +188,7 @@ def getmovie():
 
 def getMovieForWeather(): #wrapper function to call both apis in order
     result = getWeather()
-    movie = getMovie(result)
+    movie = getmovie(result)
     return render_template('weather.html', movie=movie)
 
 
@@ -350,7 +358,7 @@ def authorize():
     user_info = resp.json()
     # # do something with the token and profile
     session['email'] = user_info['email']
-    return redirect('/')
+    return redirect('/logged')
 
 @app.route('/logout', methods = ['GET','POST'])
 def logout():
