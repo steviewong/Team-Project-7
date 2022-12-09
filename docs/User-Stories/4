@@ -1,3 +1,0 @@
-As a logged-in user, I want to add movies to my "Watch Later" folder. I first go to my profile and then type the movie name into the search bar. If it was a valid
-movie, I will be informed that the movie was added to my folder. If it was not a valid movie, I will be informed of such and can retry entering a movie.
-To view my existing folder, I can click the "Watch Later" folder from my profile. In this folder, I will see a list of the movie names that I wanted to watch later.
