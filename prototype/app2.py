@@ -1,12 +1,127 @@
-from flask import Flask, render_template, redirect, url_for,request
-import requests
-
-import random
-import time 
+#imports
+import requests, flask, flask_sqlalchemy, flask_login, numpy, dotenv, logging, oauthlib, flask_bcrypt, form
 from getpass import getuser
+from flask import Flask, Response, request, render_template, redirect, url_for, session, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin #LoginForm, is_safe_url
+from flask_wtf import FlaskForm
+from authlib.integrations.flask_client import OAuth
+from dotenv import load_dotenv
+from oauthlib.oauth2 import WebApplicationClient
+from wtforms import StringField, PasswordField, SubmitField
+from numpy.random import randint, choice
 
+import os, base64
+from sqlalchemy.sql import func
 
+#GLOBAL VARIABLE
+genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller']
+
+#init database directory
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+#create app
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = b'8439e671181dca475dad24b8ce65141d94159f5b3d813de1eac19bc6aec638de'
+
+#init databse
+db = SQLAlchemy(app)
+
+#init login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login.html'
+
+#set up User class which will represent each dataset in the database
+class User(UserMixin, db.Model):
+    __tablename__ = 'Accounts'
+
+    firstName = db.Column(db.String(30), nullable=True)
+    lastName = db.Column(db.String(30), nullable=True)
+    email = db.Column(db.String(50), primary_key=True)
+    password = db.Column(db.String(20), nullable=False)
+    moviesToWatch = db.Column(db.Text)
+
+    def __repr__(self):
+        return f'<Logged in under {self.email}>'
+    
+    def get_id(self):
+        return self.email
+
+    def is_anonymous(self):
+        return False
+
+    def getMovies(self):
+        return self.moviesToWatch
+    
+    def addMovie(self, movieTitle):
+        self.moviesToWatch += movieTitle + '\n'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+#APP ROUTES
+@app.route('/')
+@app.route('/static/home')
+def main():
+    return render_template('movieGen.html')
+
+#@app.route('/login', methods = ['GET', 'POST'])
+#def login():
+#    form = LoginForm()
+#    if form.validate_on_submit():
+#        user = User.query.get(form.email.data)
+#        if user:
+#            if flask.bcrypt.check_password_hash(user.password, form.password.data):
+#                login_user(user, remember=True)
+#                return render_template('moviegen.html')
+#            flask.flash('Incorrect password')
+#    return render_template('login.html', form=form)
+
+@app.route('/logout', methods = ['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('app.home'))
+
+@app.route('/toWatch')
+@login_required
+def toWatch(user_id):
+    movies = User.getMovies()
+    return render_template('watchList.html', movies=movies)
+
+@app.route('/static/moviegen')
+@login_required
+def afterLogin():
+    return render_template('moviegen.html')
+
+@app.route('/editWatchlist')
+@login_required
+def editWatchlist():
+    movie = request.form.get('movieTitle')
+    current_user.addMovie(movie)
+
+#route to add new user to database
+@app.route('/createUser', methods=['GET', 'POST'])
+def createUser():
+    if flask.request.method == 'POST':
+        username = flask.request.form['username']
+        firstName = flask.request.form['firstName']
+        lastName = flask.request.form['lastName']
+        email = flask.request.form['email']
+        password = flask.request.form['password']
+        
+        db.session.add(User)
+        db.session.commit()
+
+        return render_template('moviegen.html')
+
+    return render_template('createUser.html') #code for lines 22, 87-101 adapted from https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
+
 
 genres = ['action', 'comedy', 'drama', 'fantasy', 'horror', 'mystery', 'romance', 'science fiction', 'thriller', 'christmas']
 
