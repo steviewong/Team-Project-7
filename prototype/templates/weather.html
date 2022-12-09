@@ -11,8 +11,20 @@
     <div  class = "weatherp">
         <p><b>Based on your current location's weather, we suggest: </b></p>
     </div>
-        <h1>{{ movieTitle }}</h1>
-        <h2>{{ movieGenre }}</h2>
+        {% if name %}
+        <h3> {{name}}</h3>
+        {% endif %}
+
+
+        {% if weather %}
+        <h3> {{weather}}</h3>
+        {% endif %}
+
+
+        {% if movie %}
+        <img src = {{movie}} width="400" height = "500">
+
+        {% endif %}
     </center>
 </body>
 </html>

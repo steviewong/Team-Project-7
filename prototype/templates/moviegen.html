@@ -9,15 +9,37 @@
 <body>
 <!-- Header / Home-->
   <div class="header">
-    <h1 class= “header-text”> Movie Generator </h1>
+    <h1 class= “header-text”> Movie Forecast </h1>
     <center><h3>Don't know what to watch? This application can help you choose a movie based on the weather or any other specifications you have!</h3></center>
     <center>
-      <form method="post" action="{{ url_for('getMovieForWeather') }}">
-        <input type="submit" name="button" value="Recommend a movie">
-    </form>
-    <form method="post" action="{{ url_for('getMovieForFilter') }}">
-      <input type="submit" name="button" value="Filter by genre">
-  </form>
+     <form id="search-bar" action="/search">
+        <input type="search" id="query" name="q"
+         placeholder="Search..."
+         aria-label="Search through site content">
+        <button>Search</button>
+      </form>
+      <br>
+      <form method="post" action="{{ url_for('getmovie') }}">
+        <input type="button" name="button" value="Recommend a movie">
+      </form>
+      <form method="post" action="{{ url_for('getmovie') }}">
+        <input type="button" name="button" value="Filter by genre">
+      </form>
+    </center>
+      <form id="search-bar" action="/search">
+        <input type="search" id="query" name="q"
+          placeholder="Search by title"
+          aria-label="Search by title">
+        <button>Search</button>
+      </form>
+      <form method="post" action="{{ url_for('addMovie') }}">
+        <input type="submit" name="button" value="Add a movie to your watchlist">
+      </form>
+    </center>
+    <center>
+    <a href="mailto:?subject=I wanted you to see this site&amp;body=Check out this site! https://195441fafe2271.lhr.life" title="Share by Email">
+      <img src="http://png-2.findicons.com/files/icons/573/must_have/48/mail.png">
+    </a>
     </center>
   </div>
 </body>
