@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlaskApp</title>
+    
+    
+</head>
+<body>
+    <h1>Due to the Weather </h1>
+    <h2>We recommend this!</h2>
+
+    {% if name %}
+    <h3> {{name}}</h3>
+    {% endif %}
+
+
+    {% if weather %}
+    <h3> {{weather}}</h3>
+    {% endif %}
+
+
+    {% if movie %}
+    <img src = {{movie}} 
+    width="400"
+    height = "500"
+    >
+
+
+    {% endif %}
+
+
+
+</body>
+
+</html>

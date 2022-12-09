@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlaskApp</title>
+    
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <h2>Welcome to FlaskApp!</h2>
+
+    {% if email %}
+    <h3> {{email}}</h3>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" action="/search">
+        <label for = "comment" > comment </label>
+        <input type ="text" name = "movieTitle" /><br/>
+        <input type="submit" value="search" />
+
+
+    </form>
+
+    <form method="post" enctype="multipart/form-data" action="/getmovie">
+        <label for = "comment" > rec</label>
+       
+        <input type="submit" value="search" />
+
+    </form>
+    
+        <form method="post" enctype="multipart/form-data" action="/login">
+            <label for = "comment" > oauth</label>
+           
+            <input type="submit" value="search" />
+
+    </form>
+    {% if movie %}
+    <img src = {{movie}} 
+    width="400"
+    height = "500"
+    >
+
+
+    {% endif %}
+
+    {% if movie %}
+    <div>{{movie}}</div> 
+    {% endif %}
+
+</body>
+</html>
