@@ -1,5 +1,3 @@
-As a logged-in user, I want to be able to share movies that I like or dislike with my friends in order to discuss the movies. After using the search 
-function to find movies, I want to be able to click on the movie I am interested in and find a clearly marked share button. When I click on the share 
-button, I want to be able to share to a social media platform like Facebook. If I click on the share button and something goes wrong, such as the buttons to share it 
-doesn't work, I want to be able to go back to where the movie information appeared. I want the generated link to bring the person it is shared with to the same page with the movie description I am looking at when I 
-send the link, so that we can discuss the movie and they know the same information about it that I do.
+As a logged-in user, I want to be able to share the website with other people through email. There will be an email icon that once clicked should automatically
+direct you to your mail app in your computer and pre fill your subject line and body with text and the url to the main website. All I would need to do is type in 
+the email of the person who I would want to send it to. 
