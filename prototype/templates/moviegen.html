@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,17 +12,36 @@
 <!-- Header / Home-->
   <div class="header">
     <h1 class= “header-text”> Movie Forecast </h1>
+    <center>
+    {% if email %}
+        <h3> {{email}}</h3>
+        {% endif %}
+    </center>
     <center><h3>Don't know what to watch? This application can help you choose a movie based on the weather or any other specifications you have!</h3></center>
     <center>
-     <form id="search-bar" action="/search">
-        <input type="search" id="query" name="q"
-         placeholder="Search..."
-         aria-label="Search through site content">
-        <button>Search</button>
-      </form>
+        <form method="post" enctype="multipart/form-data" action="/search">
+            <label for = "comment" > comment </label>
+            <input type ="text" name = "movieTitle" /><br/>
+            <input required type="submit" value="search" />
+    
+    
+        </form>
       <br>
-      <button class = "buttons"><a href='/getMovieForWeather'>Weather</a></button>
-      <button class = "buttons"><a href='/filter'>Filter</a></button>
+
+      <button class = "buttons"><a href='/getmovie'>Weather</a></button>
+
+      <form method="post" enctype="multipart/form-data" action="/filter">
+        <label for = "comment" > filter</label>
+        <input type ="text" name = "genre" /><br/>
+        <input type="submit" value="search" />
+        </form>
+
+      <form method="post" enctype="multipart/form-data" action="/logout">
+        <label for = "comment" ></label>
+       
+        <input type="submit" value="logout" />
+
+    </form>
     </center>
     <center>
     <a href="mailto:?subject=I wanted you to see this site&amp;body=Check out this site! https://195441fafe2271.lhr.life" title="Share by Email">
