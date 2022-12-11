@@ -37,7 +37,6 @@ user = None
 
 class User(UserMixin, db.Model):     #code for lines 25-27 taken from, and User class adapted from, https://www.digitalocean.com/community/tutorials/how-to-use-flask-sqlalchemy-to-interact-with-databases-in-a-flask-application
     email = db.Column(db.String(50), primary_key=True)
-    moviesToWatch = db.Column(db.Text)
 
     def __repr__(self):
         return f'<Logged in under {self.email}>'
@@ -47,13 +46,6 @@ class User(UserMixin, db.Model):     #code for lines 25-27 taken from, and User 
 
     def is_anonymous(self):
         return False
-
-    def getMovies(self):
-        return self.moviesToWatch
-    
-    def addMovie(self, movieTitle):
-        self.moviesToWatch += movieTitle + '\n' 
-
 
 def hello():
     movie = getposter()
@@ -79,17 +71,6 @@ def started():
     db.session.add(user)
     db.commit()
     return render_template("./moviegen.html", email = email)
-
-@app.route('/addWatchList')
-def addWatchList():
-    movie = flask.form.request.get('movieTitle')
-    user.moviesToWatch += movie
-    db.session.commit()
-
-@app.route('/seeWatchList')
-def seeWatchList():
-    list = user.getMovies()
-    return list
 
 def posty(movie):
 
@@ -233,7 +214,6 @@ def getWeather():
             genre = genres[randint(0, 9)]
         
         return [genre,weatherCondition]
-
 
 def recommend():
     num = randint(0,99)
