@@ -238,26 +238,6 @@ def getMovie(genre):
         #return most important info about movie
         return [movieTitle, movieImage, movieGenres, movieDescription]  
 
-@app.route('/static/weatherTest', methods = ['GET', 'POST'])
-def weatherTest():
-    if flask.request.method == 'POST':	
-        url = 'https://yahoo-weather5.p.rapidapi.com/weather'
-
-        headers = {
-                'X-RapidAPI-Key': '465b9bba02msh9ec7cc598f38c88p193583jsn4b7a43cc9d7f',
-                'X-RapidAPI-Host': 'yahoo-weather5.p.rapidapi.com'
-                }
-                
-        querystring = {'location': 'boston,ma', 'format': 'json', 'u': 'f'}
-
-        response = requests.request("GET", url, headers=headers, params=querystring) #code lines 39-48, with variable names edited, taken from RapidAPI listing for Yahoo Weather API at https://rapidapi.com/apishub/api/yahoo-weather5
-        responseJ = response.json()
-
-        weatherCond = responseJ['current_observation']['condition']['text']
-
-        return render_template('weatherBoston.html', weatherCond=weatherCond)
-
-
 if __name__ == '__main__':
     app.run(debug=True,
             host='0.0.0.0',
